@@ -1,0 +1,3900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>CCR Golf</title>
+<style>
+  :root{
+    --pine:#122A1E;
+    --pine-dark:#0B1D14;
+    --fairway:#1F4430;
+    --fairway-light:#2B5A3D;
+    --cream:#F1E8D2;
+    --cream-dim:#D9CDAE;
+    --gold:#C99A2E;
+    --gold-bright:#E4B84A;
+    --rust:#A63A2E;
+    --ink:#182015;
+    --line: rgba(241,232,210,0.18);
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 20% 0%, var(--fairway-light) 0%, var(--pine) 45%, var(--pine-dark) 100%);
+    color:var(--cream);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+    padding-bottom:40px;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:18px 16px 60px;}
+
+  header.top{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;row-gap:10px;
+    padding:6px 2px 18px;border-bottom:1px solid var(--line);margin-bottom:18px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand .mark{
+    width:34px;height:34px;border-radius:50%;
+    background:linear-gradient(160deg,var(--gold-bright),var(--gold));
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.35);
+  }
+  .brand h1{
+    font-family:Georgia,'Times New Roman',serif;font-weight:700;
+    font-size:1.5rem;letter-spacing:0.04em;margin:0;color:var(--cream);
+    text-transform:uppercase;
+  }
+  .brand .sub{font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--cream-dim);margin-top:1px;}
+  nav.tabs{display:flex;gap:6px;flex-wrap:wrap;}
+  nav.tabs button{
+    background:transparent;border:1px solid var(--line);color:var(--cream-dim);
+    padding:7px 11px;border-radius:20px;font-size:0.72rem;letter-spacing:0.06em;
+    text-transform:uppercase;cursor:pointer;font-family:inherit;
+  }
+  nav.tabs button.active{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:700;}
+
+  h2.section-title{
+    font-family:Georgia,'Times New Roman',serif;font-size:1.15rem;letter-spacing:0.03em;
+    color:var(--gold-bright);margin:0 0 12px;text-transform:uppercase;
+  }
+  .card{
+    background:linear-gradient(180deg,rgba(241,232,210,0.06),rgba(241,232,210,0.02));
+    border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px;
+  }
+  label{display:block;font-size:0.75rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:6px;}
+  input[type=text],input[type=number],select{
+    width:100%;background:var(--pine-dark);border:1px solid var(--line);color:var(--cream);
+    padding:10px 11px;border-radius:8px;font-size:1rem;font-family:inherit;
+  }
+  input:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+  .row > *{flex:1;min-width:120px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--gold);color:var(--ink);border:none;border-radius:9px;
+    padding:11px 16px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:inherit;
+    letter-spacing:0.02em;
+  }
+  .btn.secondary{background:transparent;color:var(--cream);border:1px solid var(--line);}
+  .btn.ghost{background:transparent;color:var(--cream-dim);border:1px dashed var(--line);}
+  .btn.danger{background:var(--rust);color:var(--cream);}
+  .btn:disabled{opacity:0.35;cursor:not-allowed;}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+
+  .player-chip{
+    display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;
+    border:1px solid var(--line);cursor:pointer;background:rgba(0,0,0,0.15);
+    font-size:0.92rem;
+  }
+  .player-chip.selected{border-color:var(--gold);background:rgba(201,154,46,0.18);}
+  .player-chip .dot{width:9px;height:9px;border-radius:50%;background:var(--fairway-light);}
+  .order-list{display:flex;flex-direction:column;gap:8px;}
+  .order-row{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.15);
+    border:1px solid var(--line);border-radius:9px;padding:8px 10px;}
+  .order-row .num{width:24px;height:24px;border-radius:50%;background:var(--gold);color:var(--ink);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.78rem;flex:none;}
+  .order-row .name{flex:1;}
+  .order-row .arrows{display:flex;gap:4px;}
+  .order-row .arrows button{background:transparent;border:1px solid var(--line);color:var(--cream);
+    border-radius:6px;width:26px;height:26px;cursor:pointer;}
+  .drag-handle{cursor:grab;padding:6px 8px;margin:-6px -4px -6px 0;color:var(--cream-dim);
+    font-size:1.05rem;line-height:1;letter-spacing:-2px;touch-action:none;user-select:none;flex:none;}
+  .drag-handle:active{cursor:grabbing;}
+  .order-row.dragging{box-shadow:0 8px 20px rgba(0,0,0,0.45);background:rgba(201,154,46,0.14);
+    border-color:var(--gold);}
+
+  .hole-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+  .hole-head .hole-num{font-family:Georgia,serif;font-size:2rem;font-weight:700;color:var(--cream);line-height:1;}
+  .hole-head .hole-meta{font-size:0.72rem;color:var(--cream-dim);letter-spacing:0.05em;text-transform:uppercase;margin-top:4px;}
+  .hawk-hole-flag{background:var(--rust);color:var(--cream);font-size:0.65rem;padding:3px 8px;border-radius:6px;
+    letter-spacing:0.08em;text-transform:uppercase;font-weight:700;}
+
+  table.ref-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+  table.ref-table th{
+    text-align:left;font-size:0.68rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--cream-dim);
+    padding:6px 6px;border-bottom:1px solid var(--line);
+  }
+  table.ref-table td{padding:6px 6px;border-bottom:1px solid rgba(241,232,210,0.08);vertical-align:middle;}
+
+  .team-tag{font-size:0.65rem;padding:2px 7px;border-radius:6px;letter-spacing:0.04em;text-transform:uppercase;font-weight:700;}
+  .team-tag.hawk{background:var(--gold);color:var(--ink);}
+  .team-tag.other{background:var(--fairway-light);color:var(--cream);}
+  .team-tag.solo{background:var(--rust);color:var(--cream);}
+
+  .money{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:700;}
+  .money.pos{color:#8FBF8A;}
+  .money.neg{color:#E08D82;}
+  .money.zero{color:var(--cream-dim);}
+
+  .toggle-line{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;}
+  .toggle-line .desc{font-size:0.82rem;color:var(--cream-dim);line-height:1.4;flex:1;}
+  .switch{position:relative;display:inline-block;width:46px;height:26px;flex:none;}
+  .switch input{opacity:0;width:0;height:0;}
+  .switch .slider{position:absolute;cursor:pointer;inset:0;background:rgba(241,232,210,0.18);
+    border-radius:26px;transition:0.15s;}
+  .switch .slider:before{position:absolute;content:"";height:20px;width:20px;left:3px;bottom:3px;
+    background:var(--cream);border-radius:50%;transition:0.15s;}
+  .switch input:checked + .slider{background:var(--gold);}
+  .switch input:checked + .slider:before{transform:translateX(20px);background:var(--ink);}
+
+  .summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;
+    border-bottom:1px solid rgba(241,232,210,0.08);}
+  .summary-row:last-child{border-bottom:none;}
+  .standing-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(241,232,210,0.08);}
+  .standing-row:last-child{border-bottom:none;}
+  .standing-rank{width:22px;font-family:Georgia,serif;font-weight:700;color:var(--gold-bright);}
+  .standing-name{flex:1;}
+  .note{font-size:0.78rem;color:var(--cream-dim);line-height:1.5;margin-top:6px;}
+  .history-hole{display:flex;justify-content:space-between;align-items:center;padding:10px 0;
+    border-bottom:1px solid rgba(241,232,210,0.08);cursor:pointer;}
+  .history-hole:last-child{border-bottom:none;}
+  .empty{text-align:center;padding:30px 10px;color:var(--cream-dim);}
+  .helptext{font-size:0.7rem;color:var(--cream-dim);margin-top:4px;}
+  .winner-btn{padding:14px 16px;}
+  .winner-btn.chosen{outline:2px solid var(--gold-bright);}
+  .roster-popup{
+    position:fixed;left:16px;right:16px;bottom:16px;max-width:608px;margin:0 auto;
+    background:linear-gradient(180deg,var(--fairway-light),var(--fairway));
+    border:1px solid var(--gold);border-radius:14px;padding:16px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.55);z-index:50;
+  }
+  .mode-card{
+    display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+    background:linear-gradient(180deg,rgba(241,232,210,0.08),rgba(241,232,210,0.02));
+    border:1px solid var(--line);border-radius:14px;padding:18px 16px;margin-bottom:14px;
+    cursor:pointer;color:var(--cream);font-family:inherit;
+  }
+  .mode-card:hover{border-color:var(--gold);}
+  .mode-card .mode-icon{font-size:1.8rem;flex:none;width:44px;text-align:center;}
+  .mode-card .mode-title{font-family:Georgia,serif;font-size:1.15rem;color:var(--gold-bright);margin-bottom:2px;}
+  .mode-card .mode-desc{font-size:0.8rem;color:var(--cream-dim);}
+  .mode-card.disabled{opacity:0.45;cursor:not-allowed;}
+  .tee-swatch{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,0.35);vertical-align:middle;}
+  .score-entry-block{padding:12px 0;border-bottom:1px solid rgba(241,232,210,0.08);}
+  .score-entry-block:last-child{border-bottom:none;}
+  .score-entry-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+  .score-entry-name{font-weight:700;}
+  .score-entry-meta{font-size:0.72rem;color:var(--cream-dim);}
+  .score-btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:2px 0 2px;}
+  .score-btn-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .score-btn-shape-zone{height:46px;width:34px;display:flex;align-items:center;justify-content:center;}
+  .score-btn{
+    background:transparent;border:none;padding:4px;cursor:pointer;color:var(--cream);
+    display:flex;align-items:center;justify-content:center;border-radius:8px;font-family:inherit;
+  }
+  .score-btn.active{background:rgba(201,154,46,0.28);}
+  .score-btn-label{font-size:0.58rem;letter-spacing:0.03em;text-transform:uppercase;color:var(--cream-dim);}
+  .shape-core{width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+    font-size:0.82rem;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--cream);}
+  .shape-ring{display:flex;align-items:center;justify-content:center;padding:3px;}
+  .shape-ring.circle{border-radius:50%;border:1.5px solid var(--gold-bright);}
+  .shape-ring.square{border-radius:3px;border:1.5px solid var(--cream);}
+  .score-other-input{
+    width:24px;height:24px;background:var(--pine-dark);border:1px dashed var(--cream-dim);
+    border-radius:6px;color:var(--cream);text-align:center;font-size:0.7rem;padding:0;font-family:inherit;
+    -moz-appearance:textfield;
+  }
+  .score-other-input::-webkit-outer-spin-button,
+  .score-other-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .score-other-input:focus{outline:2px solid var(--gold);}
+
+  /* Print - isolates #print-section (the Scorecard View), forces landscape, and
+     shrinks everything so front/back nine + totals + legend fit on one page. */
+  @media print{
+    @page{ size: landscape; margin: 8mm; }
+    body{background:#FFFFFF !important;}
+    body *{visibility:hidden;}
+    #print-section, #print-section *{visibility:visible;}
+    #print-section{position:absolute;left:0;top:0;width:100%;padding:0;}
+    .no-print{display:none !important;}
+    *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important;}
+    #print-section .card{padding:0 !important;margin-bottom:6px !important;border:none !important;}
+    #print-section h2.section-title{font-size:0.85rem !important;margin:0 0 3px !important;}
+    #print-section .note{font-size:0.62rem !important;margin:0 0 5px !important;}
+    #print-section .sv-tables-wrap{display:flex !important;gap:6mm;}
+    #print-section .sv-scroll{overflow:visible !important;border:none !important;flex:1 1 50%;min-width:0;margin-bottom:0 !important;}
+    #print-section table.sv-table{min-width:0 !important;width:100% !important;}
+    #print-section table.sv-table th, #print-section table.sv-table td{padding:1.5px 3px !important;font-size:0.58rem !important;}
+    #print-section table.sv-table th:first-child, #print-section table.sv-table td:first-child{min-width:0 !important;position:static !important;}
+    #print-section .summary-row{padding:2px 0 !important;font-size:0.68rem !important;}
+    #print-section .sv-legend{font-size:0.55rem !important;gap:8px !important;margin-top:4px !important;}
+  }
+
+  /* Traditional Scorecard View - paper aesthetic, scoped separately from the rest of the app */
+  .scorecard-view{
+    background:#FBF8F0;color:#2A2A22;border:1px solid #DED5BC;
+  }
+  .scorecard-view h2.section-title{color:#1E3A2F;}
+  .scorecard-view .note{color:#6B6455;}
+  .scorecard-view .sv-scroll{overflow-x:auto;border:1px solid #DED5BC;border-radius:8px;margin-bottom:14px;}
+  table.sv-table{border-collapse:collapse;width:100%;min-width:640px;font-variant-numeric:tabular-nums;}
+  table.sv-table th, table.sv-table td{padding:6px 7px;text-align:center;border-bottom:1px solid #DED5BC;font-size:0.78rem;white-space:nowrap;}
+  table.sv-table th:first-child, table.sv-table td:first-child{
+    position:sticky;left:0;background:#FBF8F0;text-align:left;font-weight:700;min-width:110px;border-right:1px solid #DED5BC;
+  }
+  table.sv-table thead th{background:#1E3A2F;color:#F5F0E1;font-family:Georgia,serif;font-weight:600;}
+  table.sv-table thead th:first-child{background:#1E3A2F;}
+  .sv-row-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.05em;color:#6B6455 !important;font-weight:700;}
+  .sv-outin{font-weight:800;background:rgba(184,147,90,0.22) !important;}
+  .scorecard-view .summary-row{border-bottom:1px solid #DED5BC;color:#2A2A22;}
+  .sv-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:0.72rem;color:#6B6455;}
+  .sv-legend .item{display:flex;align-items:center;gap:7px;}
+  .mini-core{width:20px;height:20px;display:flex;align-items:center;justify-content:center;margin:0 auto;
+    font-size:0.72rem;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#2A2A22;}
+  .mini-input{
+    border:none;border-bottom:1px dashed #B8935A;background:transparent;padding:0;text-align:center;
+    -moz-appearance:textfield;
+  }
+  .mini-input::-webkit-outer-spin-button,
+  .mini-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .mini-input:focus{outline:none;border-bottom:1.5px solid #A63A2E;background:#FFEA8A;border-radius:3px;color:#2A2A22;}
+  .mini-input:hover{background:rgba(184,147,90,0.12);}
+  .mini-ring{display:flex;align-items:center;justify-content:center;padding:2px;}
+  .mini-ring.circle{border-radius:50%;border:1.2px solid #A63A2E;}
+  .mini-ring.square{border-radius:2px;border:1.2px solid #1E3A2F;}
+  .sv-cell-wrap{position:relative;display:inline-flex;}
+  .sv-stroke-dot{position:absolute;top:-1px;right:-3px;width:6px;height:6px;border-radius:50%;background:#B8935A;}
+  .sv-cat-icons{font-size:0.65rem;line-height:1;margin-top:2px;letter-spacing:1px;}
+  .bet-hero{
+    text-align:center;padding:6px 8px 16px;
+    border-bottom:1px solid rgba(241,232,210,0.12);margin-bottom:14px;
+  }
+  .bet-hero-label{
+    font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--cream-dim);margin-bottom:2px;
+  }
+  .bet-hero-amount{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:3.2rem;font-weight:800;line-height:1;color:var(--gold-bright);
+    text-shadow:0 0 22px rgba(228,184,74,0.5);
+  }
+  ::selection{background:var(--gold);color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  const STORAGE_KEY = "hawk-round-v2";
+  const ROSTER_KEY = "hawk-saved-players-v1";
+  const HOLES_COUNT = 18;
+  const HAWK_HOLE_START = 16; // holes 16-18 -> hawk is whoever is down the most
+
+  // ---- COURSE DATA ----
+  const COURSES = {
+    ccr: {
+      id: "ccr",
+      name: "Country Club of Roswell",
+      defaultTee: "charger",
+      // hole handicap (stroke index) ranking, per user-supplied table
+      handicap: {
+        1:13, 2:17, 3:5, 4:1, 5:3, 6:9, 7:15, 8:11, 9:7,
+        10:10, 11:16, 12:6, 13:12, 14:2, 15:8, 16:18, 17:4, 18:14
+      },
+      // Par per hole, from the Country Club of Roswell scorecard (Jul 2026)
+      par: {
+        1:4, 2:3, 3:4, 4:4, 5:4, 6:5, 7:3, 8:4, 9:4,
+        10:4, 11:3, 12:4, 13:5, 14:4, 15:4, 16:3, 17:4, 18:5
+      },
+      // Tee yardages, from the Country Club of Roswell scorecard (Jul 2026)
+      tees: {
+        champions: { label:"Champions (Blue)", color:"#3B5BA5", yards:{1:361,2:212,3:437,4:401,5:393,6:548,7:186,8:372,9:388,10:336,11:177,12:381,13:495,14:426,15:394,16:126,17:403,18:520} },
+        charger:   { label:"Charger (White)",  color:"#D9D2BE", yards:{1:335,2:165,3:398,4:372,5:354,6:519,7:177,8:362,9:358,10:309,11:157,12:356,13:475,14:390,15:358,16:112,17:382,18:493} },
+        competitor:{ label:"Competitor (Green)", color:"#3F7A4E", yards:{1:309,2:129,3:376,4:348,5:327,6:507,7:154,8:318,9:343,10:283,11:140,12:327,13:455,14:374,15:350,16:104,17:359,18:472} },
+        challenger:{ label:"Challenger (Red)", color:"#A63A2E", yards:{1:291,2:123,3:326,4:314,5:283,6:429,7:146,8:308,9:331,10:250,11:110,12:220,13:374,14:310,15:342,16:80,17:238,18:449} },
+        yellow:    { label:"Yellow / Jr", color:"#D9C33B", yards:{1:210,2:85,3:326,4:314,5:283,6:327,7:93,8:263,9:287,10:189,11:110,12:190,13:374,14:286,15:285,16:80,17:200,18:344} }
+      }
+    },
+    stmarlos: {
+      id: "stmarlos",
+      name: "St. Marlos",
+      defaultTee: "white",
+      // hole handicap (stroke index) ranking, from the St. Marlos scorecard
+      handicap: {
+        1:6, 2:2, 3:16, 4:10, 5:12, 6:14, 7:18, 8:4, 9:8,
+        10:13, 11:7, 12:1, 13:17, 14:11, 15:3, 16:9, 17:15, 18:5
+      },
+      // Par per hole, from the St. Marlos scorecard
+      par: {
+        1:4, 2:4, 3:3, 4:4, 5:5, 6:3, 7:4, 8:5, 9:4,
+        10:5, 11:3, 12:4, 13:5, 14:4, 15:4, 16:3, 17:4, 18:4
+      },
+      // Tee yardages, from the St. Marlos scorecard
+      tees: {
+        gold:  { label:"Gold",  color:"#C9A227", yards:{1:432,2:474,3:179,4:405,5:577,6:378,7:176,8:377,9:456,10:523,11:190,12:461,13:615,14:391,15:459,16:216,17:351,18:413} },
+        blue:  { label:"Blue",  color:"#3B5BA5", yards:{1:405,2:458,3:174,4:395,5:512,6:367,7:161,8:360,9:440,10:496,11:173,12:442,13:497,14:379,15:440,16:193,17:338,18:400} },
+        white: { label:"White", color:"#D9D2BE", yards:{1:387,2:399,3:166,4:368,5:477,6:306,7:151,8:341,9:388,10:470,11:138,12:428,13:470,14:368,15:418,16:167,17:308,18:382} },
+        red:   { label:"Red",   color:"#A63A2E", yards:{1:294,2:340,3:130,4:305,5:433,6:248,7:128,8:321,9:327,10:411,11:100,12:339,13:397,14:338,15:314,16:141,17:227,18:296} }
+      }
+    }
+  };
+  const DEFAULT_HOME_COURSE = "ccr";
+  let homeCourse = DEFAULT_HOME_COURSE;
+
+  // "Current course" bindings - read by every PAR[h]/HOLE_HANDICAP[h]/TEES[key] lookup throughout
+  // the app. setCourse() repoints these at the start of each mode's render pass.
+  let HOLE_HANDICAP = COURSES[DEFAULT_HOME_COURSE].handicap;
+  let PAR = COURSES[DEFAULT_HOME_COURSE].par;
+  let TEES = COURSES[DEFAULT_HOME_COURSE].tees;
+
+  function setCourse(courseKey){
+    const c = COURSES[courseKey] || COURSES[homeCourse] || COURSES[DEFAULT_HOME_COURSE];
+    HOLE_HANDICAP = c.handicap;
+    PAR = c.par;
+    TEES = c.tees;
+    return c;
+  }
+
+  function firstTeeKeyFor(courseKey){
+    const c = COURSES[courseKey] || COURSES[DEFAULT_HOME_COURSE];
+    return c.defaultTee || Object.keys(c.tees)[0];
+  }
+
+  // Random score for demo/simulation purposes: birdie (-1) through double bogey (+2)
+  function randomDemoScore(par){
+    const offsets = [-1, 0, 1, 2];
+    return par + offsets[Math.floor(Math.random()*offsets.length)];
+  }
+
+  // Example players used to populate any "Simulate" demo round
+  const DEMO_PLAYERS = [
+    {name:"John", index:18},
+    {name:"Paul", index:10},
+    {name:"Ringo", index:18},
+    {name:"George", index:6},
+    {name:"Chris", index:14}
+  ];
+  function applyDemoPlayers(players){
+    players.forEach((p,i)=>{
+      const demo = DEMO_PLAYERS[i % DEMO_PLAYERS.length];
+      p.name = demo.name;
+      p.index = demo.index;
+    });
+  }
+
+  const HOME_COURSE_KEY = "hawk-home-course-v1";
+  async function saveHomeCourse(){
+    try{ await window.storage.set(HOME_COURSE_KEY, JSON.stringify({course:homeCourse}), false); }
+    catch(e){ console.error("home course save failed", e); }
+  }
+  async function loadHomeCourse(){
+    try{
+      const res = await window.storage.get(HOME_COURSE_KEY, false);
+      if(res && res.value){ const parsed = JSON.parse(res.value); if(COURSES[parsed.course]) return parsed.course; }
+    }catch(e){ /* no key yet */ }
+    return DEFAULT_HOME_COURSE;
+  }
+
+  function parTotal(range){ return range.reduce((s,h)=>s+PAR[h],0); }
+  function yardTotal(teeKey, range){ return range.reduce((s,h)=>s+TEES[teeKey].yards[h],0); }
+
+  // Reusable Course card: course dropdown, "set as home course" control, and an optional tee dropdown.
+  // opts: { courseKey, onCourseChange(newKey), teeKey (optional), onTeeChange(newKey) (optional) }
+  function buildCourseCard(opts){
+    const card = el("div","card");
+    card.appendChild(el("h2","section-title","Course"));
+    const courseSelect = el("select");
+    Object.keys(COURSES).forEach(key=>{
+      const label = COURSES[key].name + (homeCourse===key ? " (Home)" : "");
+      const o = el("option",null, label); o.value=key;
+      if(opts.courseKey===key) o.selected=true;
+      courseSelect.appendChild(o);
+    });
+    courseSelect.onchange = ()=>{ opts.onCourseChange(courseSelect.value); };
+    card.appendChild(courseSelect);
+
+    const homeRow = el("div"); homeRow.style.marginTop="8px";
+    if(homeCourse===opts.courseKey){
+      homeRow.appendChild(el("div","note","\u2B50 This is your home course."));
+    } else {
+      const setHomeBtn = el("button","btn ghost","\u2B50 Set as Home Course");
+      setHomeBtn.onclick = ()=>{ homeCourse = opts.courseKey; saveHomeCourse(); render(); };
+      homeRow.appendChild(setHomeBtn);
+    }
+    card.appendChild(homeRow);
+
+    if(opts.teeKey!==undefined){
+      const teeWrap = el("div"); teeWrap.style.marginTop="14px";
+      teeWrap.appendChild(el("label",null,"Tee"));
+      const teeSelect = el("select");
+      Object.keys(TEES).forEach(key=>{
+        const o = el("option",null, TEES[key].label); o.value=key;
+        if(opts.teeKey===key) o.selected=true;
+        teeSelect.appendChild(o);
+      });
+      teeSelect.onchange = ()=>{ opts.onTeeChange(teeSelect.value); };
+      teeWrap.appendChild(teeSelect);
+      card.appendChild(teeWrap);
+    }
+    return card;
+  }
+
+  // Generic stroke allocation for an arbitrary list of players (used by Golf / Stroke Play modes)
+  function gLowestIndex(players){
+    return Math.min(...players.map(p=>Number(p.index)||0));
+  }
+  function gStrokesFor(players, pid){
+    const p = players.find(x=>x.id===pid);
+    if(!p) return 0;
+    const diff = (Number(p.index)||0) - gLowestIndex(players);
+    return Math.max(0, Math.floor(diff));
+  }
+  function gStrokeHoleNumbers(players, pid){
+    const strokes = gStrokesFor(players, pid);
+    if(strokes<=0) return [];
+    const holes = [];
+    for(let h=1; h<=18; h++){
+      if(HOLE_HANDICAP[h] <= strokes) holes.push(h);
+    }
+    return holes.sort((a,b)=>a-b);
+  }
+
+  const SCORE_PRESETS = [
+    {label:"Eagle", offset:-2, rings:2, shape:"circle"},
+    {label:"Birdie", offset:-1, rings:1, shape:"circle"},
+    {label:"Par", offset:0, rings:0, shape:"circle"},
+    {label:"Bogey", offset:1, rings:1, shape:"square"},
+    {label:"Dbl Bogey", offset:2, rings:2, shape:"square"},
+    {label:"Tpl Bogey", offset:3, rings:3, shape:"square"}
+  ];
+
+  function buildScoreButtonRow(par, currentValue, onSelect, inputId){
+    const row = el("div","score-btn-row");
+    const presetValues = SCORE_PRESETS.map(p=>par+p.offset);
+
+    SCORE_PRESETS.forEach(preset=>{
+      const value = par + preset.offset;
+      const wrap = el("div","score-btn-wrap");
+      const zone = el("div","score-btn-shape-zone");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "score-btn" + (currentValue===value ? " active" : "");
+      let node = el("span","shape-core", String(value));
+      for(let i=0;i<preset.rings;i++){
+        const ring = el("span","shape-ring "+preset.shape);
+        ring.appendChild(node);
+        node = ring;
+      }
+      btn.appendChild(node);
+      btn.onclick = ()=>{ onSelect(value); };
+      zone.appendChild(btn);
+      wrap.appendChild(zone);
+      wrap.appendChild(el("div","score-btn-label", preset.label));
+      row.appendChild(wrap);
+    });
+
+    const otherWrap = el("div","score-btn-wrap");
+    const otherZone = el("div","score-btn-shape-zone");
+    const otherInput = document.createElement("input");
+    otherInput.type = "number"; otherInput.min = 1;
+    otherInput.className = "score-btn score-other-input";
+    if(inputId) otherInput.id = inputId;
+    if(currentValue!==null && currentValue!==undefined && !presetValues.includes(currentValue)){
+      otherInput.value = currentValue;
+    }
+    otherInput.onfocus = selectOnFocus(otherInput);
+    otherInput.oninput = ()=>{ onSelect(otherInput.value===""?null:Number(otherInput.value)); };
+    otherZone.appendChild(otherInput);
+    otherWrap.appendChild(otherZone);
+    otherWrap.appendChild(el("div","score-btn-label","Other"));
+    row.appendChild(otherWrap);
+
+    return row;
+  }
+
+  function miniShape(rings, shapeClass, text){
+    let node = el("span","mini-core", text||"");
+    for(let i=0;i<rings;i++){
+      const ring = el("span","mini-ring "+shapeClass);
+      ring.appendChild(node);
+      node = ring;
+    }
+    return node;
+  }
+
+  function scoreMarkNode(value, par){
+    if(value===null || value===undefined) return el("span",null,"\u2014");
+    const offset = value - par;
+    const preset = SCORE_PRESETS.find(pr=>pr.offset===offset);
+    return miniShape(preset ? preset.rings : 0, preset ? preset.shape : "circle", String(value));
+  }
+
+  // Editable version used in the Scorecard View - same ring styling, but an input instead of plain text
+  function scoreMarkInput(value, par, onChange, inputId){
+    const offset = (value===null || value===undefined) ? null : value-par;
+    const preset = offset!==null ? SCORE_PRESETS.find(pr=>pr.offset===offset) : null;
+    const input = document.createElement("input");
+    input.type = "number"; input.min = 1;
+    input.className = "mini-core mini-input";
+    if(inputId) input.id = inputId;
+    if(value!==null && value!==undefined) input.value = value;
+    input.onfocus = selectOnFocus(input);
+    input.onchange = ()=>{ onChange(input.value===""?null:Number(input.value)); };
+    input.onkeydown = (e)=>{ if(e.key==="Enter") input.blur(); };
+    let node = input;
+    const rings = preset ? preset.rings : 0;
+    const shapeClass = preset ? preset.shape : "circle";
+    for(let i=0;i<rings;i++){
+      const ring = el("span","mini-ring "+shapeClass);
+      ring.appendChild(node);
+      node = ring;
+    }
+    return node;
+  }
+
+  // Shared traditional-scorecard renderer.
+  // config: { players:[{id,name}], getScore(hole,pid)=>number|null, tee: teeKey|null }
+  function renderScorecardView(config){
+    const wrap = el("div");
+    wrap.id = "print-section";
+    const card = el("div","card scorecard-view");
+    card.appendChild(el("h2","section-title","Traditional Scorecard"));
+    card.appendChild(el("div","note",(config.courseName||"Course")+(config.tee ? " \u2014 "+TEES[config.tee].label : "")));
+
+    const printBtn = el("button","btn no-print","\u{1F5A8}\uFE0F Print");
+    printBtn.style.marginBottom = "12px";
+    printBtn.onclick = ()=>{ window.print(); };
+    card.appendChild(printBtn);
+
+    function buildTable(holes, label, outInLabel){
+      const scrollWrap = el("div","sv-scroll");
+      const table = el("table","sv-table");
+      const headRow = el("tr");
+      headRow.appendChild(el("th",null,label));
+      holes.forEach(h=>headRow.appendChild(el("th",null,String(h))));
+      headRow.appendChild(el("th",null,outInLabel));
+      table.appendChild(headRow);
+
+      if(config.tee){
+        const yardRow = el("tr");
+        yardRow.appendChild(el("td","sv-row-label","Yards"));
+        let yTotal=0;
+        holes.forEach(h=>{ const y=TEES[config.tee].yards[h]; yTotal+=y; yardRow.appendChild(el("td",null,String(y))); });
+        yardRow.appendChild(el("td","sv-outin",String(yTotal)));
+        table.appendChild(yardRow);
+      }
+
+      const parRow = el("tr");
+      parRow.appendChild(el("td","sv-row-label","Par"));
+      let pTotal=0;
+      holes.forEach(h=>{ pTotal+=PAR[h]; parRow.appendChild(el("td",null,String(PAR[h]))); });
+      parRow.appendChild(el("td","sv-outin",String(pTotal)));
+      table.appendChild(parRow);
+
+      const siRow = el("tr");
+      siRow.appendChild(el("td","sv-row-label","Hcp"));
+      holes.forEach(h=>siRow.appendChild(el("td",null,String(HOLE_HANDICAP[h]))));
+      siRow.appendChild(el("td",null,""));
+      table.appendChild(siRow);
+
+      config.players.forEach(p=>{
+        const tr = el("tr");
+        tr.appendChild(el("td",null,p.name));
+        let subtotal=0, any=false;
+        const strokeHoles = config.strokeHolesFn ? config.strokeHolesFn(p.id) : [];
+        holes.forEach(h=>{
+          const val = config.getScore(h,p.id);
+          const td = el("td");
+          const cellWrap = el("span","sv-cell-wrap");
+          if(config.setScore){
+            cellWrap.appendChild(scoreMarkInput(val, PAR[h], (newVal)=>{ config.setScore(h,p.id,newVal); }, "sv-input-"+h+"-"+p.id));
+          } else {
+            cellWrap.appendChild(scoreMarkNode(val, PAR[h]));
+          }
+          if(strokeHoles.includes(h)){ cellWrap.appendChild(el("span","sv-stroke-dot")); }
+          td.appendChild(cellWrap);
+          const icons = config.categoryIconsFn ? config.categoryIconsFn(h,p.id) : [];
+          if(icons.length){ td.appendChild(el("div","sv-cat-icons", icons.join(" "))); }
+          tr.appendChild(td);
+          if(val!==null && val!==undefined){ subtotal+=val; any=true; }
+        });
+        tr.appendChild(el("td","sv-outin", any?String(subtotal):""));
+        table.appendChild(tr);
+      });
+
+      scrollWrap.appendChild(table);
+      return scrollWrap;
+    }
+
+    const tablesWrap = el("div","sv-tables-wrap");
+    tablesWrap.appendChild(buildTable([1,2,3,4,5,6,7,8,9], "Front Nine", "Out"));
+    tablesWrap.appendChild(buildTable([10,11,12,13,14,15,16,17,18], "Back Nine", "In"));
+    card.appendChild(tablesWrap);
+
+    config.players.forEach(p=>{
+      let total=0, any=false;
+      for(let h=1; h<=18; h++){
+        const v = config.getScore(h,p.id);
+        if(v!==null && v!==undefined){ total+=v; any=true; }
+      }
+      const row = el("div","summary-row");
+      const diff = total-71;
+      const diffStr = diff===0?"E":(diff>0?"+"+diff:String(diff));
+      row.appendChild(el("div",null,p.name));
+      row.appendChild(el("div",null, any ? total+" ("+diffStr+")" : "\u2014"));
+      card.appendChild(row);
+    });
+
+    const legend = el("div","sv-legend");
+    function legendItem(rings, shapeClass, label){
+      const item = el("span","item");
+      item.appendChild(miniShape(rings, shapeClass, ""));
+      item.appendChild(document.createTextNode(label));
+      return item;
+    }
+    legend.appendChild(legendItem(1,"circle","Birdie"));
+    legend.appendChild(legendItem(2,"circle","Eagle"));
+    legend.appendChild(legendItem(1,"square","Bogey"));
+    legend.appendChild(legendItem(2,"square","Double+"));
+    if(config.strokeHolesFn){
+      const dotItem = el("span","item");
+      const dotDemo = el("span","sv-cell-wrap"); dotDemo.style.position="relative";
+      dotDemo.appendChild(el("span","mini-core",""));
+      dotDemo.appendChild(el("span","sv-stroke-dot"));
+      dotItem.appendChild(dotDemo);
+      dotItem.appendChild(document.createTextNode("Gets a stroke"));
+      legend.appendChild(dotItem);
+    }
+    if(config.categoryIconsFn){
+      const iconLegend = [["\u{1F3CC}","Long Drive"],["\u26F3","Closest to Pin"],["\u2022","Low Net"],["\u2605","Custom category"]];
+      iconLegend.forEach(([icon,label])=>{
+        const item = el("span","item");
+        item.appendChild(document.createTextNode(icon+" "+label));
+        legend.appendChild(item);
+      });
+    }
+    card.appendChild(legend);
+
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  function strokeHoleNumbers(pid){
+    const strokes = strokesFor(pid);
+    if(strokes<=0) return [];
+    const holes = [];
+    for(let h=1; h<=18; h++){
+      if(HOLE_HANDICAP[h] <= strokes) holes.push(h);
+    }
+    return holes.sort((a,b)=>a-b);
+  }
+
+
+  let state = null;
+  let view = "loading"; // setup | order | play | standings | history
+  let savedPlayers = []; // {name, index} roster saved across rounds
+  let pendingRosterPrompt = null; // {playerId, name, index} awaiting a save-to-roster decision
+
+  const APP_MODE_KEY = "hawk-app-mode-v1";
+  const GOLF_KEY = "golf-round-v1";
+  let appMode = null; // null (home) | "golf" | "betting" | "hawk"
+  let gState = null; // active round for Golf mode
+
+  function gKey(){ return GOLF_KEY; }
+
+  function defaultGState(){
+    return {
+      players: [{id:"g1", name:"Player 1", index:0}],
+      courseKey: homeCourse,
+      tee: firstTeeKeyFor(homeCourse),
+      useNet: false,
+      currentHole: 1,
+      setupDone: false,
+      scores: {} // holeNum -> { playerId: grossScore }
+    };
+  }
+
+  async function gSave(){
+    try{ await window.storage.set(gKey(), JSON.stringify(gState), false); }
+    catch(e){ console.error("golf save failed", e); }
+  }
+
+  async function gLoad(){
+    try{
+      const res = await window.storage.get(gKey(), false);
+      if(res && res.value) return JSON.parse(res.value);
+    }catch(e){ /* no key yet */ }
+    return null;
+  }
+
+  async function saveAppMode(){
+    try{ await window.storage.set(APP_MODE_KEY, JSON.stringify({mode:appMode}), false); }
+    catch(e){ console.error("app mode save failed", e); }
+  }
+
+  async function loadAppMode(){
+    try{
+      const res = await window.storage.get(APP_MODE_KEY, false);
+      if(res && res.value) return JSON.parse(res.value).mode;
+    }catch(e){ /* no key yet */ }
+    return null;
+  }
+
+  // ---- POINTS GAME (long drive / closest to pin / low net, + custom categories) ----
+  const POINTS_KEY = "points-round-v1";
+  let pState = null;
+
+  function defaultPState(){
+    return {
+      players: [{id:"pt1", name:"Player 1", index:0}],
+      courseKey: homeCourse,
+      tee: firstTeeKeyFor(homeCourse),
+      currentHole: 1,
+      setupDone: false,
+      pointValue: 2,
+      carryOver: true,
+      extraCategories: [], // array of custom category names, e.g. "First to Hole Out"
+      holes: {} // holeNum -> { scores:{pid:gross}, categoryWinners:{catKey:pid|null} }
+    };
+  }
+
+  async function pSave(){
+    try{ await window.storage.set(POINTS_KEY, JSON.stringify(pState), false); }
+    catch(e){ console.error("points save failed", e); }
+  }
+
+  async function pLoad(){
+    try{
+      const res = await window.storage.get(POINTS_KEY, false);
+      if(res && res.value) return JSON.parse(res.value);
+    }catch(e){ /* no key yet */ }
+    return null;
+  }
+
+  function emptyPointsHole(){
+    return { scores:{}, categoryWinners:{} };
+  }
+
+  function getPointsHole(num){
+    if(!pState.holes[num]) pState.holes[num] = emptyPointsHole();
+    const ph = pState.holes[num];
+    pState.players.forEach(p=>{
+      if(ph.scores[p.id]===undefined || ph.scores[p.id]===null){ ph.scores[p.id] = PAR[num]; }
+    });
+    return ph;
+  }
+
+  function categoriesForHole(num){
+    const cats = [];
+    if(PAR[num]===3){ cats.push({key:"cpp", label:"Closest to Pin", icon:"\u26F3", auto:false}); }
+    else { cats.push({key:"longdrive", label:"Long Drive", icon:"\u{1F3CC}", auto:false}); }
+    cats.push({key:"lownet", label:"Low Net", icon:"\u2022", auto:true});
+    (pState.extraCategories||[]).forEach((name,i)=>{
+      cats.push({key:"extra"+i, label:name, icon:"\u2605", auto:false});
+    });
+    return cats;
+  }
+
+  function pointsLowNetWinner(num){
+    const ph = pState.holes[num];
+    if(!ph) return null;
+    let best = null, bestIds = [];
+    pState.players.forEach(p=>{
+      const gross = ph.scores[p.id];
+      if(gross===null || gross===undefined) return;
+      const net = gross - (gStrokeHoleNumbers(pState.players, p.id).includes(num) ? 1 : 0);
+      if(best===null || net<best){ best=net; bestIds=[p.id]; }
+      else if(net===best){ bestIds.push(p.id); }
+    });
+    return bestIds.length===1 ? bestIds[0] : null;
+  }
+
+  // Replays every visited hole in order, applying carry-over rules per category
+  function computePointsResults(){
+    const totals = {}; pState.players.forEach(p=>totals[p.id]=0);
+    const holeDeltas = {}; // holeNum -> {playerId: delta}
+    const holeWinners = {}; // holeNum -> {catKey: playerId|null}
+    const carryPot = {};
+
+    for(let h=1; h<=18; h++){
+      if(!pState.holes[h]) continue;
+      const cats = categoriesForHole(h);
+      holeDeltas[h] = {}; pState.players.forEach(p=>holeDeltas[h][p.id]=0);
+      holeWinners[h] = {};
+      cats.forEach(cat=>{
+        if(carryPot[cat.key]===undefined) carryPot[cat.key]=0;
+        const winnerId = cat.auto ? pointsLowNetWinner(h) : (pState.holes[h].categoryWinners[cat.key] || null);
+        holeWinners[h][cat.key] = winnerId;
+        const stake = pState.pointValue + carryPot[cat.key];
+        if(winnerId){
+          const others = pState.players.filter(p=>p.id!==winnerId);
+          others.forEach(p=>{ holeDeltas[h][p.id] -= stake; totals[p.id] -= stake; });
+          holeDeltas[h][winnerId] += stake*others.length;
+          totals[winnerId] += stake*others.length;
+          carryPot[cat.key] = 0;
+        } else if(pState.carryOver){
+          carryPot[cat.key] += pState.pointValue;
+        }
+      });
+    }
+    return { totals, holeDeltas, holeWinners, carryPot };
+  }
+
+  // ---- NASSAU (front 9 / back 9 / total 18, 2v2 teams) ----
+  const NASSAU_KEY = "nassau-round-v1";
+  let nState = null;
+  const NASSAU_FRONT = [1,2,3,4,5,6,7,8,9];
+  const NASSAU_BACK = [10,11,12,13,14,15,16,17,18];
+  const NASSAU_ALL = NASSAU_FRONT.concat(NASSAU_BACK);
+  const NASSAU_SEGMENTS = [
+    {key:"front", label:"Front 9", holes:NASSAU_FRONT},
+    {key:"back", label:"Back 9", holes:NASSAU_BACK},
+    {key:"total", label:"Total 18", holes:NASSAU_ALL}
+  ];
+
+  function defaultNState(){
+    const players = [
+      {id:"n1", name:"Player 1", index:0},
+      {id:"n2", name:"Player 2", index:0},
+      {id:"n3", name:"Player 3", index:0},
+      {id:"n4", name:"Player 4", index:0}
+    ];
+    return {
+      players,
+      teamOf: { n1:"A", n2:"A", n3:"B", n4:"B" },
+      useNet: false,
+      betAmount: 10,
+      courseKey: homeCourse,
+      tee: firstTeeKeyFor(homeCourse),
+      currentHole: 1,
+      setupDone: false,
+      scores: {} // holeNum -> { playerId: grossScore }
+    };
+  }
+
+  async function nSave(){
+    try{ await window.storage.set(NASSAU_KEY, JSON.stringify(nState), false); }
+    catch(e){ console.error("nassau save failed", e); }
+  }
+
+  async function nLoad(){
+    try{
+      const res = await window.storage.get(NASSAU_KEY, false);
+      if(res && res.value) return JSON.parse(res.value);
+    }catch(e){ /* no key yet */ }
+    return null;
+  }
+
+  function nTeamPlayers(team){ return nState.players.filter(p=>nState.teamOf[p.id]===team).map(p=>p.id); }
+  function nOtherTeam(team){ return team==="A" ? "B" : "A"; }
+
+  function nTeamsValid(){
+    return nTeamPlayers("A").length===2 && nTeamPlayers("B").length===2;
+  }
+
+  function nPlayerValue(h, pid){
+    const hole = nState.scores[h];
+    if(!hole) return null;
+    const gross = hole[pid];
+    if(gross===null || gross===undefined) return null;
+    if(!nState.useNet) return gross;
+    const stroke = gStrokeHoleNumbers(nState.players, pid).includes(h) ? 1 : 0;
+    return gross - stroke;
+  }
+
+  function nSegmentComplete(holes){
+    return holes.every(h=>{
+      const hole = nState.scores[h];
+      if(!hole) return false;
+      return nState.players.every(p=> hole[p.id]!==undefined && hole[p.id]!==null);
+    });
+  }
+
+  function nTeamTotal(team, holes){
+    let sum = 0;
+    nTeamPlayers(team).forEach(pid=>{
+      holes.forEach(h=>{
+        const v = nPlayerValue(h, pid);
+        if(v!==null) sum += v;
+      });
+    });
+    return sum;
+  }
+
+  // Returns "A" | "B" | "tie" | null (null = not all holes in that segment are in yet)
+  function nSegmentWinner(holes){
+    if(!nSegmentComplete(holes)) return null;
+    const totalA = nTeamTotal("A", holes);
+    const totalB = nTeamTotal("B", holes);
+    if(totalA<totalB) return "A";
+    if(totalB<totalA) return "B";
+    return "tie";
+  }
+
+  function computeNassauResults(){
+    const totals = {}; nState.players.forEach(p=>totals[p.id]=0);
+    const segmentResults = {};
+    NASSAU_SEGMENTS.forEach(seg=>{
+      const winner = nSegmentWinner(seg.holes);
+      segmentResults[seg.key] = {
+        winner,
+        totalA: nTeamTotal("A", seg.holes),
+        totalB: nTeamTotal("B", seg.holes)
+      };
+      if(winner && winner!=="tie"){
+        const winners = nTeamPlayers(winner);
+        const losers = nTeamPlayers(nOtherTeam(winner));
+        winners.forEach(pid=>{ totals[pid] += nState.betAmount; });
+        losers.forEach(pid=>{ totals[pid] -= nState.betAmount; });
+      }
+    });
+    return { totals, segmentResults };
+  }
+
+  // ---- MATCH PLAY (1v1 singles, or 2v2 best-ball, hole-by-hole with handicap strokes) ----
+  const MATCH_KEY = "match-round-v1";
+  let mState = null;
+
+  function defaultMState(){
+    const players = [
+      {id:"m1", name:"Player 1", index:0},
+      {id:"m2", name:"Player 2", index:0},
+      {id:"m3", name:"Player 3", index:0},
+      {id:"m4", name:"Player 4", index:0}
+    ];
+    return {
+      format: "1v1", // "1v1" (2 players, head to head) | "2v2" (4 players, 2 teams, best ball)
+      players,
+      teamOf: { m1:"A", m2:"B", m3:"A", m4:"B" },
+      useNet: true,
+      betAmount: 10,
+      courseKey: homeCourse,
+      tee: firstTeeKeyFor(homeCourse),
+      currentHole: 1,
+      setupDone: false,
+      scores: {} // holeNum -> { playerId: grossScore }
+    };
+  }
+
+  async function mSave(){
+    try{ await window.storage.set(MATCH_KEY, JSON.stringify(mState), false); }
+    catch(e){ console.error("match play save failed", e); }
+  }
+  async function mLoad(){
+    try{
+      const res = await window.storage.get(MATCH_KEY, false);
+      if(res && res.value) return JSON.parse(res.value);
+    }catch(e){ /* no key yet */ }
+    return null;
+  }
+
+  // Players actually in the match: slots 0-1 for 1v1, all 4 for 2v2.
+  function mActivePlayers(){
+    return mState.format==="2v2" ? mState.players : mState.players.slice(0,2);
+  }
+  // 1v1 always pits slot 0 vs slot 1 as "A"/"B" - no team picker needed for 2 players.
+  function mTeamOf(pid){
+    if(mState.format!=="2v2"){
+      return (mState.players[0] && mState.players[0].id===pid) ? "A" : "B";
+    }
+    return mState.teamOf[pid];
+  }
+  function mTeamPlayers(team){
+    return mActivePlayers().filter(p=>mTeamOf(p.id)===team).map(p=>p.id);
+  }
+  function mOtherTeam(team){ return team==="A" ? "B" : "A"; }
+  function mTeamsValid(){
+    if(mState.format!=="2v2") return true;
+    return mTeamPlayers("A").length===2 && mTeamPlayers("B").length===2;
+  }
+  function mTeamLabel(team){
+    return mTeamPlayers(team).map(pid=>playerNameIn(mState.players, pid)).join(" & ");
+  }
+
+  // Singles match play allocates the full handicap difference. Four-ball best-ball
+  // conventionally uses 90% of the difference from the lowest index in the group.
+  // Like the rest of the app, "index" is used directly as the strokes basis (no
+  // separate Course Handicap slope/rating conversion is modeled here).
+  function mStrokePct(){ return mState.format==="2v2" ? 0.9 : 1; }
+  function mStrokesFor(pid){
+    const players = mActivePlayers();
+    const p = players.find(x=>x.id===pid);
+    if(!p) return 0;
+    const lowest = Math.min(...players.map(x=>Number(x.index)||0));
+    const diff = (Number(p.index)||0) - lowest;
+    return Math.max(0, Math.floor(diff * mStrokePct()));
+  }
+  function mStrokeHoleNumbers(pid){
+    const strokes = mStrokesFor(pid);
+    if(strokes<=0) return [];
+    const holes = [];
+    for(let h=1; h<=18; h++){ if(HOLE_HANDICAP[h] <= strokes) holes.push(h); }
+    return holes.sort((a,b)=>a-b);
+  }
+
+  function mNetValue(h, pid){
+    const hole = mState.scores[h];
+    if(!hole) return null;
+    const gross = hole[pid];
+    if(gross===null || gross===undefined) return null;
+    if(!mState.useNet) return gross;
+    const stroke = mStrokeHoleNumbers(pid).includes(h) ? 1 : 0;
+    return gross - stroke;
+  }
+  // Best (lowest) net score on a hole among a team's player(s) - the "best ball".
+  // For 1v1, a team has exactly one player, so this is just that player's net score.
+  function mTeamBest(h, team){
+    const vals = mTeamPlayers(team).map(pid=>mNetValue(h,pid)).filter(v=>v!==null);
+    if(vals.length===0) return null;
+    return Math.min(...vals);
+  }
+  function mHoleRecorded(h){
+    const hole = mState.scores[h];
+    if(!hole) return false;
+    return mActivePlayers().every(p=> hole[p.id]!==undefined && hole[p.id]!==null);
+  }
+  // "A" | "B" | "halve" | null (null = hole not yet fully scored)
+  function mHoleWinner(h){
+    if(!mHoleRecorded(h)) return null;
+    const a = mTeamBest(h,"A"), b = mTeamBest(h,"B");
+    if(a===null || b===null) return null;
+    if(a<b) return "A";
+    if(b<a) return "B";
+    return "halve";
+  }
+
+  // Walks holes 1-18 in order (stopping at the first hole not yet fully scored) and
+  // tracks the running "up" count, detecting the point (if any) where the match is
+  // mathematically decided - i.e. the leader's up count exceeds the holes remaining.
+  function computeMatchStatus(){
+    let diff = 0, holesPlayed = 0, clinchedAt = null;
+    for(let h=1; h<=18; h++){
+      if(!mHoleRecorded(h)) break;
+      holesPlayed = h;
+      const w = mHoleWinner(h);
+      if(w==="A") diff += 1;
+      else if(w==="B") diff -= 1;
+      const remaining = 18 - h;
+      if(clinchedAt===null && Math.abs(diff) > remaining){
+        clinchedAt = { hole:h, diff, remaining };
+      }
+    }
+    return { diff, holesPlayed, clinchedAt };
+  }
+
+  // Human-readable match state, e.g. "All square thru 6", "Team A 2 up thru 14 (dormie)",
+  // "Team B wins 3 & 2". Also flags whether/who won, for money settlement.
+  function matchStatusText(){
+    const s = computeMatchStatus();
+    const teamName = (t)=> mState.format==="2v2" ? ("Team "+t) : playerNameIn(mState.players, mTeamPlayers(t)[0]);
+    if(s.clinchedAt){
+      const leader = s.clinchedAt.diff>0 ? "A" : "B";
+      const upBy = Math.abs(s.clinchedAt.diff);
+      return { done:true, halved:false, winner:leader,
+        text: teamName(leader)+" wins "+upBy+" & "+s.clinchedAt.remaining };
+    }
+    if(s.holesPlayed===18){
+      if(s.diff===0) return { done:true, halved:true, winner:null, text:"Match halved \u2014 all square thru 18" };
+      const leader = s.diff>0 ? "A" : "B";
+      return { done:true, halved:false, winner:leader, text: teamName(leader)+" wins "+Math.abs(s.diff)+" up" };
+    }
+    if(s.holesPlayed===0) return { done:false, halved:false, winner:null, text:"Not started" };
+    const remaining = 18 - s.holesPlayed;
+    if(s.diff===0) return { done:false, halved:false, winner:null, text:"All square thru "+s.holesPlayed };
+    const leader = s.diff>0 ? "A" : "B";
+    const upBy = Math.abs(s.diff);
+    const dormie = upBy===remaining;
+    return { done:false, halved:false, winner:null,
+      text: teamName(leader)+" "+upBy+" up thru "+s.holesPlayed + (dormie ? " (dormie)" : "") };
+  }
+
+  function computeMatchResults(){
+    const info = matchStatusText();
+    const totals = {}; mActivePlayers().forEach(p=>totals[p.id]=0);
+    if(info.done && !info.halved && info.winner){
+      const winners = mTeamPlayers(info.winner), losers = mTeamPlayers(mOtherTeam(info.winner));
+      winners.forEach(pid=>{ totals[pid] += mState.betAmount; });
+      losers.forEach(pid=>{ totals[pid] -= mState.betAmount; });
+    }
+    return { info, totals };
+  }
+
+  function simulateMatchRound(){
+    if(!confirm("This fills in example players and random scores for the whole round, to demo how Match Play works. Continue?")) return;
+    const active = mActivePlayers();
+    applyDemoPlayers(active);
+    for(let h=1; h<=18; h++){
+      mState.scores[h] = mState.scores[h] || {};
+      active.forEach(p=>{ mState.scores[h][p.id] = randomDemoScore(PAR[h]); });
+    }
+    mState.currentHole = 18;
+    mSave(); render();
+  }
+
+  // ---- DEMO SIMULATION (random scores, birdie to double bogey) ----
+  function simulateHawkRound(){
+    if(!confirm("This fills in example players (John, Paul, Ringo, George, Chris) and random scores and hole decisions for the whole round, to demo how Hawk works. Continue?")) return;
+    applyDemoPlayers(state.players);
+    if(state.order.length !== state.players.length){ state.order = state.players.map(p=>p.id); }
+    state.setupDone = true;
+    state.holes = {};
+    for(let h=1; h<=HOLES_COUNT; h++){
+      const hs = getHole(h);
+      const modeRoll = ["team","team","team","alone","dump"];
+      hs.mode = modeRoll[Math.floor(Math.random()*modeRoll.length)];
+      const others = state.players.filter(p=>p.id!==hs.hawkId).map(p=>p.id);
+      hs.partnerId = (hs.mode==="team"||hs.mode==="dump") ? others[Math.floor(Math.random()*others.length)] : null;
+      state.players.forEach(p=>{ hs.scores[p.id] = randomDemoScore(PAR[h]); });
+      hs.winnerManual = false;
+      hs.birdieManual = false;
+      hs.concededBy = null;
+      const suggestion = suggestWinner(hs);
+      if(suggestion) hs.winner = suggestion;
+      hs.birdie = detectBirdie(hs);
+      hs.locked = true;
+      hs.deltas = computeDeltas(hs);
+    }
+    state.currentHole = HOLES_COUNT;
+    view = "summary";
+    save(); render();
+  }
+
+  function simulatePointsRound(){
+    if(!confirm("This fills in example players and random scores and point winners for the whole round, to demo how Bomb & Stick works. Continue?")) return;
+    applyDemoPlayers(pState.players);
+    pState.setupDone = true;
+    pState.holes = {};
+    for(let h=1; h<=18; h++){
+      const ph = getPointsHole(h);
+      pState.players.forEach(p=>{ ph.scores[p.id] = randomDemoScore(PAR[h]); });
+      categoriesForHole(h).forEach(cat=>{
+        if(cat.auto) return;
+        if(Math.random() < 0.7){
+          const winner = pState.players[Math.floor(Math.random()*pState.players.length)];
+          ph.categoryWinners[cat.key] = winner.id;
+        } else {
+          ph.categoryWinners[cat.key] = null;
+        }
+      });
+    }
+    pState.currentHole = 18;
+    view = "p-summary";
+    pSave(); render();
+  }
+
+  function simulateNassauRound(){
+    if(!nTeamsValid()) return;
+    if(!confirm("This fills in example players and random scores for the whole round, to demo how Nassau works. Continue?")) return;
+    applyDemoPlayers(nState.players);
+    nState.setupDone = true;
+    nState.scores = {};
+    for(let h=1; h<=18; h++){
+      nState.scores[h] = {};
+      nState.players.forEach(p=>{ nState.scores[h][p.id] = randomDemoScore(PAR[h]); });
+    }
+    nState.currentHole = 18;
+    view = "n-summary";
+    nSave(); render();
+  }
+
+  function simulateGRound(){
+    if(!confirm("This fills in example players and random scores for the whole round, to demo how Golf scorekeeping works. Continue?")) return;
+    applyDemoPlayers(gState.players);
+    gState.setupDone = true;
+    gState.scores = {};
+    for(let h=1; h<=18; h++){
+      gState.scores[h] = {};
+      gState.players.forEach(p=>{ gState.scores[h][p.id] = randomDemoScore(PAR[h]); });
+    }
+    gState.currentHole = 18;
+    view = "g-summary";
+    gSave(); render();
+  }
+
+
+  async function enterMode(mode){
+    appMode = mode;
+    if(mode==="golf"){
+      gState = await gLoad();
+      if(!gState) gState = defaultGState();
+      view = gState.setupDone ? "g-play" : "g-setup";
+    } else if(mode==="points"){
+      pState = await pLoad();
+      if(!pState) pState = defaultPState();
+      view = pState.setupDone ? "p-play" : "p-setup";
+    } else if(mode==="nassau"){
+      nState = await nLoad();
+      if(!nState) nState = defaultNState();
+      view = nState.setupDone ? "n-play" : "n-setup";
+    } else if(mode==="match"){
+      mState = await mLoad();
+      if(!mState) mState = defaultMState();
+      view = mState.setupDone ? "m-play" : "m-setup";
+    } else if(mode==="betting"){
+      view = "betting-menu";
+    } else if(mode==="hawk"){
+      view = state.setupDone ? "play" : "setup";
+    } else {
+      view = "home";
+    }
+    await saveAppMode();
+    render();
+  }
+
+  function goHome(){ enterMode(null); }
+
+  const el = (tag, cls, html) => {
+    const e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(html !== undefined) e.innerHTML = html;
+    return e;
+  };
+  const app = document.getElementById("app");
+
+  function defaultState(){
+    return {
+      players: [
+        {id:"p1", name:"Player 1", index:0},
+        {id:"p2", name:"Player 2", index:0},
+        {id:"p3", name:"Player 3", index:0},
+        {id:"p4", name:"Player 4", index:0},
+        {id:"p5", name:"Player 5", index:0},
+      ],
+      courseKey: homeCourse,
+      order: [],
+      currentHole: 1,
+      setupDone: false,
+      holes: {}
+    };
+  }
+
+  function emptyHole(num){
+    return {
+      num,
+      hawkId: null,
+      hawkManual: false,
+      mode: "team", // team | alone | dump
+      partnerId: null,
+      baseBet: isHawkHole(num) ? 6 : 2,
+      manualDoubles: 0,
+      birdie: false,
+      birdieManual: false,
+      winner: null, // "A" | "B" | "tie"
+      winnerManual: false,
+      concededBy: null, // "A" | "B" | null
+      locked: false,
+      deltas: null,
+      scores: {} // playerId -> gross score (optional, record-keeping only)
+    };
+  }
+
+  function isSoloMode(mode){ return mode==="alone" || mode==="dump"; }
+
+  function effectiveBet(hs){
+    const solo = isSoloMode(hs.mode) ? 2 : 1;
+    const birdieMult = hs.birdie ? 2 : 1;
+    return (Number(hs.baseBet)||0) * solo * birdieMult * Math.pow(2, hs.manualDoubles||0);
+  }
+
+  async function save(){
+    try{ await window.storage.set(STORAGE_KEY, JSON.stringify(state), false); }
+    catch(e){ console.error("save failed", e); }
+  }
+
+  async function load(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if(res && res.value){ state = JSON.parse(res.value); return true; }
+    }catch(e){ /* no key yet */ }
+    return false;
+  }
+
+  async function saveRoster(){
+    try{ await window.storage.set(ROSTER_KEY, JSON.stringify(savedPlayers), false); }
+    catch(e){ console.error("roster save failed", e); }
+  }
+
+  async function loadRoster(){
+    try{
+      const res = await window.storage.get(ROSTER_KEY, false);
+      if(res && res.value){ return JSON.parse(res.value); }
+    }catch(e){ /* no roster saved yet */ }
+    return [];
+  }
+
+  function upsertRosterPlayer(name, index){
+    if(!name) return;
+    const i = savedPlayers.findIndex(sp=>sp.name.toLowerCase()===name.toLowerCase());
+    if(i>=0) savedPlayers[i] = {name, index};
+    else savedPlayers.push({name, index});
+    saveRoster();
+  }
+
+  function removeRosterPlayer(name){
+    savedPlayers = savedPlayers.filter(sp=>sp.name!==name);
+    saveRoster();
+  }
+
+  function playerName(pid){
+    const p = state.players.find(x=>x.id===pid);
+    return p ? p.name : "?";
+  }
+
+  function lowestIndex(){
+    return Math.min(...state.players.map(p=>Number(p.index)||0));
+  }
+
+  function strokesFor(pid){
+    const p = state.players.find(x=>x.id===pid);
+    if(!p) return 0;
+    const diff = (Number(p.index)||0) - lowestIndex();
+    return Math.max(0, Math.floor(diff));
+  }
+
+  function isHawkHole(num){ return num >= HAWK_HOLE_START; }
+
+  function cumulativeTotals(uptoHoleExclusive){
+    const totals = {};
+    state.players.forEach(p=>totals[p.id]=0);
+    for(let h=1; h<uptoHoleExclusive; h++){
+      const hs = state.holes[h];
+      if(hs && hs.locked && hs.deltas){
+        state.players.forEach(p=>{ totals[p.id] += (hs.deltas[p.id]||0); });
+      }
+    }
+    return totals;
+  }
+
+  function suggestHawk(num){
+    if(!isHawkHole(num)){
+      const idx = (num-1) % state.order.length;
+      return state.order[idx];
+    }else{
+      const totals = cumulativeTotals(num);
+      let worst=null, worstVal=Infinity;
+      state.order.forEach(pid=>{
+        if(totals[pid] < worstVal){ worstVal=totals[pid]; worst=pid; }
+      });
+      return worst;
+    }
+  }
+
+  function getHole(num){
+    if(!state.holes[num]) state.holes[num] = emptyHole(num);
+    const hs = state.holes[num];
+    if(hs.baseBet===undefined){ hs.baseBet = (hs.bet!==undefined ? hs.bet : (isHawkHole(num)?6:2)); }
+    if(hs.manualDoubles===undefined){ hs.manualDoubles = 0; }
+    if(hs.birdie===undefined){ hs.birdie = false; }
+    if(hs.birdieManual===undefined){ hs.birdieManual = false; }
+    if(hs.winnerManual===undefined){ hs.winnerManual = !!hs.winner || !!hs.concededBy; }
+    if(!hs.scores){ hs.scores = {}; }
+    if(!hs.hawkId && !hs.hawkManual) hs.hawkId = suggestHawk(num);
+    return hs;
+  }
+
+  // Groups A (hawk side) and B (other side) for a hole
+  function groupsFor(hs){
+    const all = state.players.map(p=>p.id);
+    if(hs.mode === "alone"){
+      return { A:[hs.hawkId], B: all.filter(id=>id!==hs.hawkId) };
+    }
+    if(hs.mode === "dump"){
+      const solo = hs.partnerId;
+      return { A:[solo], B: all.filter(id=>id!==solo) };
+    }
+    const A = [hs.hawkId, hs.partnerId].filter(Boolean);
+    const B = all.filter(id=>!A.includes(id));
+    return {A,B};
+  }
+
+  function modeLabelFor(hs){
+    if(hs.mode==="team") return "Hawk: "+playerName(hs.hawkId)+(hs.partnerId?(" + "+playerName(hs.partnerId)):" (no partner picked)");
+    if(hs.mode==="alone") return "Hawk: "+playerName(hs.hawkId)+" (alone)";
+    return "Dump: "+(hs.partnerId?playerName(hs.partnerId):"?")+" solo";
+  }
+
+  function winnerLabel(hs){
+    const {A,B} = groupsFor(hs);
+    const aLabel = hs.mode==="team" ? A.map(playerName).join(" + ") : playerName(A[0])+" (solo)";
+    const bLabel = B.map(playerName).join(", ");
+    if(hs.winner==="tie") return "Tie \u2014 no money";
+    if(!hs.winner) return "Not yet decided";
+    const winSide = hs.winner==="A" ? aLabel : bLabel;
+    return winSide+" won"+(hs.concededBy?" (conceded)":"");
+  }
+
+  // Best (lowest) net score within a group of players for a given hole, or null if nobody has a score yet
+  function bestNetInGroup(hs, ids){
+    let best = null;
+    ids.forEach(id=>{
+      const gross = hs.scores ? hs.scores[id] : null;
+      if(gross===null || gross===undefined) return;
+      const net = gross - (strokeHoleNumbers(id).includes(hs.num) ? 1 : 0);
+      if(best===null || net<best) best = net;
+    });
+    return best;
+  }
+
+  // Suggests a winner ("A"|"B"|"tie") from best-ball net scores, or null if there's not enough data yet
+  function suggestWinner(hs){
+    const {A,B} = groupsFor(hs);
+    const bestA = bestNetInGroup(hs, A);
+    const bestB = bestNetInGroup(hs, B);
+    if(bestA===null || bestB===null) return null;
+    if(bestA<bestB) return "A";
+    if(bestB<bestA) return "B";
+    return "tie";
+  }
+
+  // Auto-doubles the bet if anyone on the winning side made a birdie or better
+  function detectBirdie(hs){
+    const {A,B} = groupsFor(hs);
+    const winningGroup = hs.winner==="A" ? A : (hs.winner==="B" ? B : null);
+    if(!winningGroup) return false;
+    return winningGroup.some(id=>{
+      const gross = hs.scores ? hs.scores[id] : null;
+      if(gross===null || gross===undefined) return false;
+      return (gross - PAR[hs.num]) <= -1;
+    });
+  }
+
+  function computeDeltas(hs){
+    const {A,B} = groupsFor(hs);
+    const bet = effectiveBet(hs);
+    const deltas = {};
+    state.players.forEach(p=>deltas[p.id]=0);
+    if(hs.winner==="tie" || !hs.winner) return deltas;
+    // Pool is always the bet times the size of "the other side" (B) -
+    // this is the side the bet's dollar amount is defined per-person for,
+    // regardless of which side actually wins or loses the hole.
+    const pool = bet * B.length;
+    const winners = hs.winner==="A" ? A : B;
+    const losers = hs.winner==="A" ? B : A;
+    const winAmt = Math.round(pool / winners.length);
+    const loseAmt = Math.round(pool / losers.length);
+    winners.forEach(id=>{ deltas[id] += winAmt; });
+    losers.forEach(id=>{ deltas[id] -= loseAmt; });
+    return deltas;
+  }
+
+  function fmtMoney(amt){
+    const rounded = Math.round(amt*100)/100;
+    const cls = rounded>0?"pos":(rounded<0?"neg":"zero");
+    const text = (rounded>0?"+":rounded<0?"-":"") + "$" + Math.abs(rounded).toFixed(2).replace(/\.00$/,"");
+    return {cls,text};
+  }
+
+  // ---------------- RENDER ----------------
+
+  let suppressAutoSelect = false;
+
+  function render(){
+    const active = document.activeElement;
+    const activeId = (active && active.id) ? active.id : null;
+    const selStart = active && typeof active.selectionStart === "number" ? active.selectionStart : null;
+    const selEnd = active && typeof active.selectionEnd === "number" ? active.selectionEnd : null;
+
+    app.innerHTML = "";
+
+    if(appMode===null){
+      setCourse(homeCourse);
+      app.appendChild(renderHeader({icon:"\u26F3", title:"Golf", subtitle:"Choose a mode"}));
+      app.appendChild(renderHome());
+    } else if(appMode==="betting"){
+      setCourse(homeCourse);
+      app.appendChild(renderHeader({icon:"\u{1F3B2}", title:"Betting Games", subtitle:"Choose a game"}));
+      app.appendChild(renderBettingMenu());
+    } else if(appMode==="golf"){
+      if(!gState.courseKey) gState.courseKey = homeCourse;
+      if(gState.useNet===undefined) gState.useNet = false;
+      setCourse(gState.courseKey);
+      app.appendChild(renderHeader({
+        icon: gState.useNet ? "\u{1F3CC}" : "\u26F3",
+        title: "Golf",
+        subtitle: gState.useNet ? "Score &amp; Handicap Strokes" : "Scorecard",
+        tabs: gState.setupDone ? [["g-play","Play"],["g-summary","Summary"],["g-scorecard","Scorecard"],["g-setup","Setup"]] : []
+      }));
+      if(view==="g-setup") app.appendChild(renderGSetup());
+      else if(view==="g-play") app.appendChild(renderGPlay());
+      else if(view==="g-summary") app.appendChild(renderGSummary());
+      else if(view==="g-scorecard") app.appendChild(renderScorecardView({
+        players: gState.players,
+        getScore: (h,pid)=>{ const hole = gState.scores[h]; return hole && hole[pid]!==undefined ? hole[pid] : null; },
+        setScore: (h,pid,val)=>{ if(!gState.scores[h]) gState.scores[h]={}; gState.scores[h][pid]=val; gSave(); render(); },
+        tee: gState.tee,
+        courseName: COURSES[gState.courseKey].name,
+        strokeHolesFn: gState.useNet ? (pid)=>gStrokeHoleNumbers(gState.players, pid) : null
+      }));
+    } else if(appMode==="points"){
+      if(!pState.courseKey) pState.courseKey = homeCourse;
+      setCourse(pState.courseKey);
+      app.appendChild(renderHeader({
+        icon:"\u{1F3AF}", title:"Bomb &amp; Stick", subtitle:"Win points for Long Drive, Closest to the Pin, and Low Net.",
+        tabs: pState.setupDone ? [["p-play","Play"],["p-standings","Money"],["p-summary","Summary"],["p-scorecard","Scorecard"],["p-setup","Setup"]] : []
+      }));
+      if(view==="p-setup") app.appendChild(renderPSetup());
+      else if(view==="p-play") app.appendChild(renderPPlay());
+      else if(view==="p-standings") app.appendChild(renderPStandings());
+      else if(view==="p-summary") app.appendChild(renderPSummary());
+      else if(view==="p-scorecard") app.appendChild(renderScorecardView({
+        players: pState.players,
+        getScore: (h,pid)=>{ const ph = pState.holes[h]; return ph && ph.scores[pid]!==undefined ? ph.scores[pid] : null; },
+        setScore: (h,pid,val)=>{ const ph = getPointsHole(h); ph.scores[pid]=val; pSave(); render(); },
+        tee: pState.tee,
+        courseName: COURSES[pState.courseKey].name,
+        strokeHolesFn: (pid)=>gStrokeHoleNumbers(pState.players, pid),
+        categoryIconsFn: (h,pid)=>{
+          const ph = pState.holes[h];
+          if(!ph) return [];
+          const results = computePointsResults();
+          const winners = results.holeWinners[h] || {};
+          const cats = categoriesForHole(h);
+          return cats.filter(c=>winners[c.key]===pid).map(c=>c.icon);
+        }
+      }));
+    } else if(appMode==="nassau"){
+      if(!nState.courseKey) nState.courseKey = homeCourse;
+      setCourse(nState.courseKey);
+      app.appendChild(renderHeader({
+        icon:"\u{1F91D}", title:"Nassau", subtitle:"Front 9, Back 9, and Total 18 \u2014 2 vs 2.",
+        tabs: nState.setupDone ? [["n-play","Play"],["n-standings","Money"],["n-summary","Summary"],["n-scorecard","Scorecard"],["n-setup","Setup"]] : []
+      }));
+      if(view==="n-setup") app.appendChild(renderNSetup());
+      else if(view==="n-play") app.appendChild(renderNPlay());
+      else if(view==="n-standings") app.appendChild(renderNStandings());
+      else if(view==="n-summary") app.appendChild(renderNSummary());
+      else if(view==="n-scorecard") app.appendChild(renderScorecardView({
+        players: nState.players,
+        getScore: (h,pid)=>{ const hole = nState.scores[h]; return hole && hole[pid]!==undefined ? hole[pid] : null; },
+        setScore: (h,pid,val)=>{ if(!nState.scores[h]) nState.scores[h]={}; nState.scores[h][pid]=val; nSave(); render(); },
+        tee: nState.tee,
+        courseName: COURSES[nState.courseKey].name,
+        strokeHolesFn: nState.useNet ? (pid)=>gStrokeHoleNumbers(nState.players, pid) : null
+      }));
+    } else if(appMode==="match"){
+      if(!mState.courseKey) mState.courseKey = homeCourse;
+      setCourse(mState.courseKey);
+      app.appendChild(renderHeader({
+        icon:"\u2694\uFE0F", title:"Match Play",
+        subtitle: mState.format==="2v2" ? "2 vs 2 Best Ball" : "1 vs 1",
+        tabs: mState.setupDone ? [["m-play","Play"],["m-standings","Money"],["m-summary","Summary"],["m-scorecard","Scorecard"],["m-setup","Setup"]] : []
+      }));
+      if(view==="m-setup") app.appendChild(renderMSetup());
+      else if(view==="m-play") app.appendChild(renderMPlay());
+      else if(view==="m-standings") app.appendChild(renderMStandings());
+      else if(view==="m-summary") app.appendChild(renderMSummary());
+      else if(view==="m-scorecard") app.appendChild(renderScorecardView({
+        players: mActivePlayers(),
+        getScore: (h,pid)=>{ const hole = mState.scores[h]; return hole && hole[pid]!==undefined ? hole[pid] : null; },
+        setScore: (h,pid,val)=>{ if(!mState.scores[h]) mState.scores[h]={}; mState.scores[h][pid]=val; mSave(); render(); },
+        tee: mState.tee,
+        courseName: COURSES[mState.courseKey].name,
+        strokeHolesFn: mState.useNet ? (pid)=>mStrokeHoleNumbers(pid) : null
+      }));
+    } else if(appMode==="hawk"){
+      if(!state.courseKey) state.courseKey = homeCourse;
+      setCourse(state.courseKey);
+      app.appendChild(renderHeader({
+        icon:"\u{1F985}", title:"Hawk", subtitle:"Scores &amp; Bets",
+        tabs: state.setupDone ? [["play","Play"],["standings","Money"],["history","History"],["summary","Summary"],["scorecard","Scorecard"],["rules","Rules"],["setup","Setup"]] : []
+      }));
+      if(view==="setup") app.appendChild(renderSetup());
+      else if(view==="order") app.appendChild(renderOrder());
+      else if(view==="play") app.appendChild(renderPlay());
+      else if(view==="standings") app.appendChild(renderStandings());
+      else if(view==="history") app.appendChild(renderHistory());
+      else if(view==="summary") app.appendChild(renderSummary());
+      else if(view==="rules") app.appendChild(renderRules());
+      else if(view==="scorecard") app.appendChild(renderScorecardView({
+        players: state.players,
+        getScore: (h,pid)=>{ const hs = state.holes[h]; return hs && hs.scores && hs.scores[pid]!==undefined ? hs.scores[pid] : null; },
+        setScore: (h,pid,val)=>{ const hs = getHole(h); hs.scores[pid]=val; save(); render(); },
+        tee: null,
+        courseName: COURSES[state.courseKey].name,
+        strokeHolesFn: (pid)=>strokeHoleNumbers(pid)
+      }));
+    }
+
+    if(activeId){
+      const again = document.getElementById(activeId);
+      if(again){
+        suppressAutoSelect = true;
+        again.focus();
+        if(selStart!==null && again.setSelectionRange){
+          try{ again.setSelectionRange(selStart, selEnd); }catch(e){ /* ignore inputs that don't support it */ }
+        }
+      }
+    }
+  }
+
+  function selectOnFocus(input){
+    return function(){
+      if(suppressAutoSelect){ suppressAutoSelect = false; return; }
+      input.select();
+    };
+  }
+
+  function renderHeader(opts){
+    opts = opts || {};
+    const header = el("header","top");
+    const brand = el("div","brand");
+    brand.appendChild(el("div","mark", opts.icon || "\u26F3"));
+    const titleWrap = el("div");
+    titleWrap.appendChild(el("h1",null, opts.title || "Golf"));
+    titleWrap.appendChild(el("div","sub", opts.subtitle || ""));
+    brand.appendChild(titleWrap);
+    header.appendChild(brand);
+
+    const tabs = el("nav","tabs");
+    if(appMode!==null){
+      const homeBtn = el("button", null, "\u{1F3E0} Home");
+      homeBtn.onclick = ()=>{ goHome(); };
+      tabs.appendChild(homeBtn);
+    }
+    (opts.tabs||[]).forEach(([v,label])=>{
+      const b = el("button", v===view?"active":"", label);
+      b.onclick = ()=>{ view=v; render(); };
+      tabs.appendChild(b);
+    });
+    header.appendChild(tabs);
+    return header;
+  }
+
+  // ---- HOME ----
+  function renderHome(){
+    const wrap = el("div");
+    const card = el("div","card");
+    card.appendChild(el("h2","section-title","What would you like to do?"));
+
+    const golfBtn = el("button","mode-card");
+    golfBtn.innerHTML = '<div class="mode-icon">\u26F3</div><div><div class="mode-title">Play Golf</div><div class="mode-desc">Keep score for 1 to 4 players \u2014 turn on net scoring for handicap strokes.</div></div>';
+    golfBtn.onclick = ()=>{ enterMode("golf"); };
+
+    const bettingBtn = el("button","mode-card");
+    bettingBtn.innerHTML = '<div class="mode-icon">\u{1F3B2}</div><div><div class="mode-title">Betting Games</div><div class="mode-desc">Hawk, with more games on the way.</div></div>';
+    bettingBtn.onclick = ()=>{ enterMode("betting"); };
+
+    card.appendChild(golfBtn);
+    card.appendChild(bettingBtn);
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  // ---- BETTING MENU ----
+  function renderBettingMenu(){
+    const wrap = el("div");
+    const card = el("div","card");
+    card.appendChild(el("h2","section-title","Betting Games"));
+
+    const hawkBtn = el("button","mode-card");
+    hawkBtn.innerHTML = '<div class="mode-icon">\u{1F985}</div><div><div class="mode-title">Hawk</div><div class="mode-desc">5-player rotating bet game, with money tracking.</div></div>';
+    hawkBtn.onclick = ()=>{ enterMode("hawk"); };
+    card.appendChild(hawkBtn);
+
+    const pointsBtn = el("button","mode-card");
+    pointsBtn.innerHTML = '<div class="mode-icon">\u{1F3AF}</div><div><div class="mode-title">Bomb &amp; Stick</div><div class="mode-desc">Win points for Long Drive, Closest to the Pin, and Low Net on every hole.</div></div>';
+    pointsBtn.onclick = ()=>{ enterMode("points"); };
+    card.appendChild(pointsBtn);
+
+    const nassauBtn = el("button","mode-card");
+    nassauBtn.innerHTML = '<div class="mode-icon">\u{1F91D}</div><div><div class="mode-title">Nassau</div><div class="mode-desc">4 players, 2 teams \u2014 separate bets on the front 9, back 9, and total 18.</div></div>';
+    nassauBtn.onclick = ()=>{ enterMode("nassau"); };
+    card.appendChild(nassauBtn);
+
+    const matchBtn = el("button","mode-card");
+    matchBtn.innerHTML = '<div class="mode-icon">\u2694\uFE0F</div><div><div class="mode-title">Match Play</div><div class="mode-desc">Hole-by-hole match play \u2014 1 vs 1, or 2 vs 2 best ball, with handicap strokes.</div></div>';
+    matchBtn.onclick = ()=>{ enterMode("match"); };
+    card.appendChild(matchBtn);
+
+    const moreCard = el("div","mode-card disabled");
+    moreCard.innerHTML = '<div class="mode-icon">\u2728</div><div><div class="mode-title">More Coming Soon</div><div class="mode-desc">Additional betting games will show up here.</div></div>';
+    card.appendChild(moreCard);
+
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  // ---- SETUP: names + handicap index ----
+  function renderSetup(){
+    const wrap = el("div");
+    const card = el("div","card");
+    card.appendChild(el("h2","section-title","Players &amp; Handicaps"));
+    card.appendChild(el("div","note","Enter each player's name and handicap index. Start typing a name to pull up anyone saved from a previous game. Strokes are the lowest index in the group subtracted from each player's own index, rounded down."));
+
+    const datalist = document.createElement("datalist");
+    datalist.id = "roster-datalist";
+    const seenNames = new Set();
+    savedPlayers.forEach(sp=>{
+      if(seenNames.has(sp.name.toLowerCase())) return;
+      seenNames.add(sp.name.toLowerCase());
+      const opt = document.createElement("option");
+      opt.value = sp.name;
+      datalist.appendChild(opt);
+    });
+    card.appendChild(datalist);
+
+    state.players.forEach((p,i)=>{
+      const row = el("div","row");
+      row.style.marginBottom = "14px";
+      const nameWrap = el("div");
+      nameWrap.appendChild(el("label",null,"Player "+(i+1)+" Name"));
+      const nameInput = el("input"); nameInput.id="player-name-"+p.id; nameInput.type="text"; nameInput.value=p.name;
+      nameInput.setAttribute("list","roster-datalist");
+      nameInput.autocomplete = "off";
+      nameInput.oninput = ()=>{
+        p.name = nameInput.value;
+        const match = savedPlayers.find(sp=>sp.name.toLowerCase()===nameInput.value.toLowerCase());
+        if(match){ p.index = match.index; }
+        save(); render();
+      };
+      nameInput.onfocus = selectOnFocus(nameInput);
+      nameInput.onblur = ()=>{ if(!p.name){ p.name = `Player ${i+1}`; save(); render(); } };
+      nameWrap.appendChild(nameInput);
+
+      const idxWrap = el("div");
+      idxWrap.appendChild(el("label",null,"Handicap Index"));
+      const idxInput = el("input"); idxInput.id="player-index-"+p.id; idxInput.type="number"; idxInput.step="0.1"; idxInput.value=p.index;
+      idxInput.oninput = ()=>{ p.index = idxInput.value===""?0:Number(idxInput.value); save(); render(); };
+      idxInput.onfocus = selectOnFocus(idxInput);
+      // "Add to roster" prompt disabled for now (re-enable by restoring this onblur handler):
+      // idxInput.onblur = ()=>{
+      //   if(!p.name || pendingRosterPrompt) return;
+      //   const existing = savedPlayers.find(sp=>sp.name.toLowerCase()===p.name.toLowerCase());
+      //   if(!existing || existing.index !== p.index){
+      //     pendingRosterPrompt = {playerId:p.id, name:p.name, index:p.index};
+      //     render();
+      //   }
+      // };
+      idxWrap.appendChild(idxInput);
+
+      row.appendChild(nameWrap); row.appendChild(idxWrap);
+      card.appendChild(row);
+    });
+    wrap.appendChild(card);
+
+    const courseCard = buildCourseCard({
+      courseKey: state.courseKey,
+      onCourseChange: (newKey)=>{ state.courseKey = newKey; save(); render(); }
+    });
+    wrap.appendChild(courseCard);
+
+    const strokeCard = el("div","card");
+    strokeCard.appendChild(el("h2","section-title","Strokes"));
+    strokeCard.appendChild(el("div","note","Holes are ranked by difficulty using "+COURSES[state.courseKey].name+"'s stroke allocation. A player's strokes fall on the hardest holes first \u2014 e.g. 3 strokes means the 3 lowest-rated (hardest) holes."));
+    const table = el("table","ref-table");
+    const thead = el("tr");
+    ["Player","Index","Strokes","Strokes On Holes"].forEach(t=>thead.appendChild(el("th",null,t)));
+    table.appendChild(thead);
+    state.players.forEach(p=>{
+      const tr = el("tr");
+      tr.appendChild(el("td",null,p.name));
+      tr.appendChild(el("td",null,String(p.index)));
+      tr.appendChild(el("td",null,String(strokesFor(p.id))));
+      const holes = strokeHoleNumbers(p.id);
+      tr.appendChild(el("td",null, holes.length ? holes.join(", ") : "\u2014"));
+      table.appendChild(tr);
+    });
+    strokeCard.appendChild(table);
+    wrap.appendChild(strokeCard);
+
+    const rosterCard = el("div","card");
+    rosterCard.appendChild(el("h2","section-title","Saved Players"));
+    if(savedPlayers.length===0){
+      rosterCard.appendChild(el("div","note","No saved players yet. Use \"Save to Roster\" above to store a player's name and handicap so you can quickly load them into a future game."));
+    } else {
+      rosterCard.appendChild(el("div","note","Tap \"Load saved player\" above any slot to reuse one of these."));
+      savedPlayers.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(sp=>{
+        const row = el("div","summary-row");
+        row.appendChild(el("div",null, sp.name+" \u2014 HCP "+sp.index));
+        const delBtn = el("button","btn ghost","Remove");
+        delBtn.onclick = ()=>{ removeRosterPlayer(sp.name); render(); };
+        row.appendChild(delBtn);
+        rosterCard.appendChild(row);
+      });
+    }
+    wrap.appendChild(rosterCard);
+
+    const demoCard = el("div","card");
+    demoCard.appendChild(el("h2","section-title","Demo"));
+    demoCard.appendChild(el("div","note","Instantly fill in a full 18-hole round with random scores (birdie to double bogey) and random hole decisions, so you can see how Hawk and its money tracking work."));
+    const simBtn = el("button","btn secondary","\u{1F3B2} Simulate Full Round");
+    simBtn.onclick = simulateHawkRound;
+    demoCard.appendChild(simBtn);
+    wrap.appendChild(demoCard);
+
+    const btnRow = el("div","btn-row");
+    const nextBtn = el("button","btn","Set tee order \u2192");
+    nextBtn.onclick = ()=>{
+      if(state.order.length !== state.players.length){
+        state.order = state.players.map(p=>p.id);
+      }
+      state.setupDone = true;
+      view = "order";
+      save(); render();
+    };
+    btnRow.appendChild(nextBtn);
+
+    if(Object.keys(state.holes).length>0){
+      const resetBtn = el("button","btn danger","Reset entire round");
+      resetBtn.onclick = ()=>{
+        if(confirm("This clears all holes and money for this round. Continue?")){
+          const players = state.players, courseKey = state.courseKey;
+          state = defaultState();
+          state.players = players; state.courseKey = courseKey;
+          view = "setup";
+          save(); render();
+        }
+      };
+      btnRow.appendChild(resetBtn);
+    }
+    wrap.appendChild(btnRow);
+
+    // "Add to roster" popup disabled for now (re-enable by restoring the onblur
+    // trigger above and uncommenting this block):
+    // if(pendingRosterPrompt){
+    //   const popup = el("div","roster-popup");
+    //   popup.appendChild(el("h2","section-title","Save Player?"));
+    //   popup.appendChild(el("div","note","Save "+pendingRosterPrompt.name+" (HCP "+pendingRosterPrompt.index+") to your roster for future games?"));
+    //   const popupBtnRow = el("div","btn-row");
+    //   const yesBtn = el("button","btn","Save to Roster");
+    //   yesBtn.onclick = ()=>{
+    //     upsertRosterPlayer(pendingRosterPrompt.name, pendingRosterPrompt.index);
+    //     pendingRosterPrompt = null;
+    //     render();
+    //   };
+    //   const noBtn = el("button","btn secondary","Not Now");
+    //   noBtn.onclick = ()=>{ pendingRosterPrompt = null; render(); };
+    //   popupBtnRow.appendChild(yesBtn); popupBtnRow.appendChild(noBtn);
+    //   popup.appendChild(popupBtnRow);
+    //   wrap.appendChild(popup);
+    // }
+
+    return wrap;
+  }
+
+  // ---- ORDER (1-5, sets hole-1 hawk and rotation) ----
+  function renderOrder(){
+    const wrap = el("div");
+    const card = el("div","card");
+    card.appendChild(el("h2","section-title","Playing Order 1\u20135"));
+    card.appendChild(el("div","note","Drag players into ball-toss order, closest first (or use the arrows). Player 1 is Hawk on Hole 1, Player 2 on Hole 2, and so on \u2014 the rotation repeats through Hole 15. On Holes 16\u201318 the Hawk is automatically whoever is down the most money."));
+
+    if(state.order.length !== state.players.length){
+      state.order = state.players.map(p=>p.id);
+    }
+    const list = el("div","order-list");
+    state.order.forEach((pid,i)=>{
+      const row = el("div","order-row");
+      row.dataset.pid = pid;
+      row.appendChild(el("div","num",String(i+1)));
+      const handle = el("div","drag-handle","\u22EE\u22EE");
+      handle.setAttribute("aria-label","Drag to reorder "+playerName(pid));
+      row.appendChild(handle);
+      row.appendChild(el("div","name",playerName(pid)));
+      const arrows = el("div","arrows");
+      const up = el("button",null,"\u2191");
+      up.disabled = i===0;
+      up.onclick = ()=>{ [state.order[i-1],state.order[i]]=[state.order[i],state.order[i-1]]; save(); render(); };
+      const down = el("button",null,"\u2193");
+      down.disabled = i===state.order.length-1;
+      down.onclick = ()=>{ [state.order[i+1],state.order[i]]=[state.order[i],state.order[i+1]]; save(); render(); };
+      arrows.appendChild(up); arrows.appendChild(down);
+      row.appendChild(arrows);
+      list.appendChild(row);
+    });
+    card.appendChild(list);
+    wrap.appendChild(card);
+
+    enableOrderDrag(list);
+
+    const btnRow = el("div","btn-row");
+    const startBtn = el("button","btn","Start Round \u2192");
+    startBtn.onclick = ()=>{ view="play"; save(); render(); };
+    btnRow.appendChild(startBtn);
+    wrap.appendChild(btnRow);
+    return wrap;
+  }
+
+  function enableOrderDrag(container){
+    const GAP = 8; // matches .order-list { gap: 8px }
+    let dragging = null, startClientY = 0, pointerId = null;
+
+    function updateNums(){
+      Array.from(container.querySelectorAll(".order-row")).forEach((row,i)=>{
+        const numEl = row.querySelector(".num");
+        if(numEl) numEl.textContent = String(i+1);
+      });
+    }
+
+    function onPointerMove(e){
+      if(!dragging) return;
+      const dy = e.clientY - startClientY;
+      dragging.style.transform = "translateY("+dy+"px)";
+      const rows = Array.from(container.querySelectorAll(".order-row"));
+      const idx = rows.indexOf(dragging);
+      const dRect = dragging.getBoundingClientRect();
+      const centerY = dRect.top + dRect.height/2;
+
+      const next = rows[idx+1];
+      if(next){
+        const nRect = next.getBoundingClientRect();
+        if(centerY > nRect.top + nRect.height/2){
+          container.insertBefore(dragging, next.nextSibling);
+          startClientY += (nRect.height + GAP);
+          updateNums();
+          return;
+        }
+      }
+      const prev = rows[idx-1];
+      if(prev){
+        const pRect = prev.getBoundingClientRect();
+        if(centerY < pRect.top + pRect.height/2){
+          container.insertBefore(dragging, prev);
+          startClientY -= (pRect.height + GAP);
+          updateNums();
+        }
+      }
+    }
+
+    function onPointerUp(){
+      if(!dragging) return;
+      dragging.style.transform = "";
+      dragging.classList.remove("dragging");
+      dragging.style.zIndex = "";
+      document.body.style.userSelect = "";
+      document.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerup", onPointerUp);
+      const rows = Array.from(container.querySelectorAll(".order-row"));
+      state.order = rows.map(r=>r.dataset.pid);
+      dragging = null; pointerId = null;
+      save(); render();
+    }
+
+    container.querySelectorAll(".drag-handle").forEach(handle=>{
+      handle.addEventListener("pointerdown", (e)=>{
+        e.preventDefault();
+        const row = handle.closest(".order-row");
+        dragging = row;
+        startClientY = e.clientY;
+        pointerId = e.pointerId;
+        row.classList.add("dragging");
+        row.style.zIndex = "5";
+        document.body.style.userSelect = "none";
+        try{ handle.setPointerCapture(pointerId); }catch(err){ /* not critical */ }
+        document.addEventListener("pointermove", onPointerMove);
+        document.addEventListener("pointerup", onPointerUp);
+      });
+    });
+  }
+
+  // ---- PLAY ----
+  function renderPlay(){
+    const wrap = el("div");
+    const num = state.currentHole;
+    const hs = getHole(num);
+    const hawkHole = isHawkHole(num);
+
+    const head = el("div","card");
+    const hh = el("div","hole-head");
+    const left = el("div");
+    left.appendChild(el("div","hole-num","Hole "+num));
+    left.appendChild(el("div","hole-meta", hawkHole?"Hawk Hole":"Regular Hole"));
+    hh.appendChild(left);
+    const right = el("div"); right.style.textAlign="right";
+    if(hawkHole) right.appendChild(el("div","hawk-hole-flag","Hawk Hole"));
+    hh.appendChild(right);
+    head.appendChild(hh);
+
+    const hawkRow = el("div");
+    hawkRow.style.marginBottom="12px";
+    hawkRow.appendChild(el("label",null,"Hawk"));
+    const hawkSel = el("select");
+    state.order.forEach(pid=>{
+      const o = el("option",null,playerName(pid)); o.value=pid;
+      if(hs.hawkId===pid) o.selected=true;
+      hawkSel.appendChild(o);
+    });
+    hawkSel.disabled = hs.locked;
+    hawkSel.onchange = ()=>{
+      hs.hawkId = hawkSel.value; hs.hawkManual = true;
+      if(hs.partnerId===hs.hawkId) hs.partnerId=null;
+      save(); render();
+    };
+    hawkRow.appendChild(hawkSel);
+    if(hawkHole) hawkRow.appendChild(el("div","helptext","Suggested: currently down the most money. Change if needed."));
+    head.appendChild(hawkRow);
+    wrap.appendChild(head);
+
+    // Teams
+    const teamCard = el("div","card");
+    teamCard.appendChild(el("h2","section-title","Teams"));
+    const modeRow = el("div","btn-row");
+    [["team","Pick a Partner"],["alone","Hawk Goes Alone"],["dump","Partner Dumps"]].forEach(([m,label])=>{
+      const b = el("button","btn "+(hs.mode===m?"":"secondary"),label);
+      b.disabled = hs.locked;
+      b.onclick = ()=>{ hs.mode=m; if(m==="alone") hs.partnerId=null; save(); render(); };
+      modeRow.appendChild(b);
+    });
+    teamCard.appendChild(modeRow);
+
+    if(hs.mode==="team" || hs.mode==="dump"){
+      const label = hs.mode==="dump" ? "Who was picked, then dumped?" : "Partner";
+      teamCard.appendChild(el("label",null,label));
+      const chips = el("div","row");
+      state.players.filter(p=>p.id!==hs.hawkId).forEach(p=>{
+        const chip = el("div","player-chip"+(hs.partnerId===p.id?" selected":""));
+        chip.appendChild(el("div","dot"));
+        chip.appendChild(el("div",null,p.name));
+        if(!hs.locked) chip.onclick = ()=>{ hs.partnerId=p.id; save(); render(); };
+        chips.appendChild(chip);
+      });
+      teamCard.appendChild(chips);
+      if(hs.mode==="dump"){
+        teamCard.appendChild(el("div","note","The dumping partner plays alone against the Hawk and the remaining players."));
+      }
+    } else {
+      teamCard.appendChild(el("div","note","Hawk plays alone against the other four."));
+    }
+    wrap.appendChild(teamCard);
+
+    const needsPartner = (hs.mode==="team"||hs.mode==="dump") && !hs.partnerId;
+    const {A,B} = groupsFor(hs);
+
+    // Default every player's score to par for this hole until they override it
+    if(!hs.scores) hs.scores = {};
+    if(!hs.locked){
+      state.players.forEach(p=>{
+        if(hs.scores[p.id]===undefined || hs.scores[p.id]===null){ hs.scores[p.id] = PAR[num]; }
+      });
+    }
+
+    // Auto-suggest the winner from best-ball net scores, unless the user has manually chosen one
+    if(!needsPartner && !hs.locked && !hs.winnerManual){
+      const suggestion = suggestWinner(hs);
+      if(suggestion){ hs.winner = suggestion; }
+    }
+    // Auto-double the bet on a birdie by the winning side, unless manually toggled
+    if(!needsPartner && !hs.locked && !hs.birdieManual){
+      hs.birdie = detectBirdie(hs);
+    }
+
+    // Bet
+    const betCard = el("div","card");
+    betCard.appendChild(el("h2","section-title","Bet"));
+
+    const bet = effectiveBet(hs);
+    const heroWrap = el("div","bet-hero");
+    heroWrap.appendChild(el("div","bet-hero-label","Current Bet In Play"));
+    heroWrap.appendChild(el("div","bet-hero-amount","$"+bet));
+    betCard.appendChild(heroWrap);
+
+    const notes = [];
+    if(isSoloMode(hs.mode)) notes.push("doubled because it's a solo hole (Hawk alone or a dump)");
+    if(hs.birdie) notes.push("doubled because the winning team birdied");
+    if(hs.manualDoubles>0) notes.push("doubled "+hs.manualDoubles+"x more from the double-bet button");
+    if(notes.length) betCard.appendChild(el("div","note","Bet is "+notes.join("; ")+"."));
+
+    const betRow = el("div","row");
+    const betWrap = el("div");
+    betWrap.appendChild(el("label",null,"Starting bet ($)"));
+    const betInput = el("input"); betInput.id="base-bet-input"; betInput.type="number"; betInput.min=0; betInput.step="1"; betInput.value=hs.baseBet;
+    betInput.disabled = hs.locked;
+    betInput.oninput = ()=>{ hs.baseBet = betInput.value===""?0:Math.round(Number(betInput.value)); save(); render(); };
+    betWrap.appendChild(betInput);
+    betRow.appendChild(betWrap);
+    betCard.appendChild(betRow);
+
+    const modRow = el("div","btn-row");
+    const dblBtn = el("button","btn secondary","Double Bet (\u2192 $"+(bet*2)+")");
+    dblBtn.disabled = hs.locked;
+    dblBtn.onclick = ()=>{ hs.manualDoubles = (hs.manualDoubles||0)+1; save(); render(); };
+    const birdieBtn = el("button","btn "+(hs.birdie?"":"secondary"),"\u{1F426} Birdie (doubles bet)");
+    birdieBtn.disabled = hs.locked;
+    birdieBtn.onclick = ()=>{ hs.birdie = !hs.birdie; hs.birdieManual = true; save(); render(); };
+    modRow.appendChild(dblBtn); modRow.appendChild(birdieBtn);
+    betCard.appendChild(modRow);
+    if(!hs.birdieManual){
+      betCard.appendChild(el("div","note","Birdie is auto-detected from the winning side's scores. Tap the button to override it manually."));
+    } else if(!hs.locked){
+      const autoBirdieBtn = el("button","btn ghost","\u21BA Back to auto-detect");
+      autoBirdieBtn.style.marginTop="6px";
+      autoBirdieBtn.onclick = ()=>{ hs.birdieManual=false; save(); render(); };
+      betCard.appendChild(autoBirdieBtn);
+    }
+
+    const resetRow = el("div","btn-row");
+    const resetDefault = hawkHole ? 6 : 2;
+    const resetBetBtn = el("button","btn ghost","Reset to $"+resetDefault);
+    resetBetBtn.disabled = hs.locked;
+    resetBetBtn.onclick = ()=>{ hs.baseBet=resetDefault; hs.manualDoubles=0; hs.birdie=false; hs.birdieManual=false; save(); render(); };
+    resetRow.appendChild(resetBetBtn);
+    betCard.appendChild(resetRow);
+    wrap.appendChild(betCard);
+
+    // Scorecard (strokes reference + score entry)
+    const strokeCard = el("div","card");
+    strokeCard.appendChild(el("h2","section-title","Scorecard"));
+    strokeCard.appendChild(el("div","note","Par "+PAR[num]+" is filled in by default \u2014 tap a shape or type a score to override. Recording scores here also suggests the winner and birdie double above, which you can still adjust."));
+    state.players.forEach(p=>{
+      const block = el("div","score-entry-block");
+      const top = el("div","score-entry-top");
+      let tag;
+      if(needsPartner){ tag = '<span class="team-tag other">\u2014</span>'; }
+      else if(hs.mode==="team"){
+        tag = A.includes(p.id) ? '<span class="team-tag hawk">Hawk</span>' : '<span class="team-tag other">Other</span>';
+      } else {
+        tag = A.includes(p.id) ? '<span class="team-tag solo">Solo</span>' : '<span class="team-tag other">Vs</span>';
+      }
+      const getsStroke = strokeHoleNumbers(p.id).includes(num);
+      const left = el("div");
+      left.innerHTML = '<span class="score-entry-name">'+p.name+'</span> '+tag;
+      top.appendChild(left);
+      const gross = hs.scores[p.id];
+      const net = (gross===null||gross===undefined) ? null : gross-(getsStroke?1:0);
+      top.appendChild(el("div","score-entry-meta", (getsStroke?"Stroke here \u00b7 ":"")+(net===null?"No score yet":"Net "+net)));
+      block.appendChild(top);
+
+      if(!hs.locked){
+        block.appendChild(buildScoreButtonRow(PAR[num], gross, (value)=>{
+          hs.scores[p.id] = value;
+          save(); render();
+        }, "hawk-score-"+num+"-"+p.id));
+      }
+      strokeCard.appendChild(block);
+    });
+    wrap.appendChild(strokeCard);
+
+    // Winner + result
+    const resultCard = el("div","card");
+    resultCard.appendChild(el("h2","section-title","Winner"));
+    if(needsPartner){
+      resultCard.appendChild(el("div","note","Choose a partner (or dumped player) above first."));
+    } else {
+      const aLabel = hs.mode==="team" ? A.map(playerName).join(" + ") : playerName(A[0])+" (solo)";
+      const bLabel = B.map(playerName).join(", ");
+      const winRow = el("div","btn-row");
+      const aBtn = el("button","btn secondary winner-btn"+(hs.winner==="A"&&!hs.concededBy?" chosen":""), aLabel+" wins");
+      aBtn.disabled = hs.locked;
+      aBtn.onclick = ()=>{ hs.winner="A"; hs.winnerManual=true; hs.concededBy=null; save(); render(); };
+      const bBtn = el("button","btn secondary winner-btn"+(hs.winner==="B"&&!hs.concededBy?" chosen":""), bLabel+" wins");
+      bBtn.disabled = hs.locked;
+      bBtn.onclick = ()=>{ hs.winner="B"; hs.winnerManual=true; hs.concededBy=null; save(); render(); };
+      const tieBtn = el("button","btn ghost winner-btn"+(hs.winner==="tie"?" chosen":""), "Tie \u2014 no money");
+      tieBtn.disabled = hs.locked;
+      tieBtn.onclick = ()=>{ hs.winner="tie"; hs.winnerManual=true; hs.concededBy=null; save(); render(); };
+      winRow.appendChild(aBtn); winRow.appendChild(bBtn); winRow.appendChild(tieBtn);
+      resultCard.appendChild(winRow);
+
+      if(!hs.winnerManual && hs.winner){
+        resultCard.appendChild(el("div","note","Suggested automatically from best-ball net scores \u2014 tap a button above to override."));
+      } else if(hs.winnerManual && !hs.locked){
+        const autoWinnerBtn = el("button","btn ghost","\u21BA Back to auto-suggest");
+        autoWinnerBtn.style.marginTop="4px";
+        autoWinnerBtn.onclick = ()=>{ hs.winnerManual=false; hs.concededBy=null; save(); render(); };
+        resultCard.appendChild(autoWinnerBtn);
+      }
+
+      const concedeRow = el("div","btn-row");
+      const aConcedeBtn = el("button","btn ghost winner-btn"+(hs.concededBy==="A"?" chosen":""), aLabel+" concedes");
+      aConcedeBtn.disabled = hs.locked;
+      aConcedeBtn.onclick = ()=>{ hs.winner="B"; hs.winnerManual=true; hs.concededBy="A"; save(); render(); };
+      const bConcedeBtn = el("button","btn ghost winner-btn"+(hs.concededBy==="B"?" chosen":""), bLabel+" concedes");
+      bConcedeBtn.disabled = hs.locked;
+      bConcedeBtn.onclick = ()=>{ hs.winner="A"; hs.winnerManual=true; hs.concededBy="B"; save(); render(); };
+      concedeRow.appendChild(aConcedeBtn); concedeRow.appendChild(bConcedeBtn);
+      resultCard.appendChild(concedeRow);
+
+      if(hs.concededBy){
+        const whoConceded = hs.concededBy==="A" ? aLabel : bLabel;
+        resultCard.appendChild(el("div","note","\u26A9 "+whoConceded+" conceded the hole \u2014 the bet is paid regardless of score."));
+      }
+
+      if(hs.winner){
+        const deltas = computeDeltas(hs);
+        const results = el("div"); results.style.marginTop="14px";
+        state.players.forEach(p=>{
+          const row = el("div","summary-row");
+          row.appendChild(el("div",null,p.name));
+          const {cls,text} = fmtMoney(deltas[p.id]);
+          row.appendChild(el("div","money "+cls, text));
+          results.appendChild(row);
+        });
+        resultCard.appendChild(results);
+
+        if(!hs.locked){
+          const confirmBtn = el("button","btn","Confirm Hole "+num);
+          confirmBtn.style.marginTop="12px";
+          confirmBtn.onclick = ()=>{
+            hs.locked = true;
+            hs.deltas = deltas;
+            if(num < HOLES_COUNT) state.currentHole = num+1;
+            save(); render();
+          };
+          resultCard.appendChild(confirmBtn);
+        } else {
+          resultCard.appendChild(el("div","note","\u2713 Hole locked in."));
+          const editBtn = el("button","btn secondary","Edit this hole");
+          editBtn.style.marginTop="8px";
+          editBtn.onclick = ()=>{ hs.locked=false; save(); render(); };
+          resultCard.appendChild(editBtn);
+        }
+      }
+    }
+    wrap.appendChild(resultCard);
+
+    const navRow = el("div","btn-row");
+    if(num>1){
+      const prevBtn = el("button","btn secondary","\u2190 Hole "+(num-1));
+      prevBtn.onclick = ()=>{ state.currentHole=num-1; save(); render(); };
+      navRow.appendChild(prevBtn);
+    }
+    if(hs.locked && num<HOLES_COUNT){
+      const nextBtn = el("button","btn secondary","Hole "+(num+1)+" \u2192");
+      nextBtn.onclick = ()=>{ state.currentHole=num+1; save(); render(); };
+      navRow.appendChild(nextBtn);
+    }
+    if(hs.locked && num===HOLES_COUNT){
+      const finishBtn = el("button","btn","See Round Summary");
+      finishBtn.onclick = ()=>{ view="summary"; render(); };
+      navRow.appendChild(finishBtn);
+    }
+    wrap.appendChild(navRow);
+
+    return wrap;
+  }
+
+  // ---- STANDINGS ----
+  function renderStandings(){
+    const wrap = el("div");
+    const card = el("div","card");
+    card.appendChild(el("h2","section-title","Money Standings"));
+    const totals = cumulativeTotals(HOLES_COUNT+1);
+    const ranked = state.players.slice().sort((a,b)=>totals[b.id]-totals[a.id]);
+    ranked.forEach((p,i)=>{
+      const row = el("div","standing-row");
+      row.appendChild(el("div","standing-rank",String(i+1)));
+      row.appendChild(el("div","standing-name",p.name));
+      const {cls,text} = fmtMoney(totals[p.id]);
+      row.appendChild(el("div","money "+cls, text));
+      card.appendChild(row);
+    });
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  // ---- HISTORY ----
+  function renderHistory(){
+    const wrap = el("div");
+    const card = el("div","card");
+    card.appendChild(el("h2","section-title","Hole History"));
+    const holeNums = Object.keys(state.holes).map(Number).sort((a,b)=>a-b);
+    if(holeNums.length===0){
+      card.appendChild(el("div","empty","No holes played yet."));
+    } else {
+      holeNums.forEach(num=>{
+        const hs = state.holes[num];
+        const row = el("div","history-hole");
+        const left = el("div");
+        left.appendChild(el("div",null,"Hole "+num+(isHawkHole(num)?" \u2014 Hawk Hole":"")));
+        const concedeNote = hs.concededBy ? " \u00b7 conceded" : "";
+        left.appendChild(el("div","helptext",modeLabelFor(hs)+" \u00b7 Bet $"+effectiveBet(hs)+concedeNote+(hs.locked?"":" \u2014 in progress")));
+        row.appendChild(left);
+        row.appendChild(el("div",null, hs.locked? "\u2713" : "\u2026"));
+        row.onclick = ()=>{ state.currentHole=num; view="play"; save(); render(); };
+        card.appendChild(row);
+      });
+    }
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  // ---- SUMMARY ----
+  function buildSummaryText(){
+    const lines = [];
+    lines.push("HAWK \u2014 Round Summary");
+    lines.push("");
+    lines.push("Final Money Standings:");
+    const totals = cumulativeTotals(HOLES_COUNT+1);
+    const ranked = state.players.slice().sort((a,b)=>totals[b.id]-totals[a.id]);
+    ranked.forEach((p,i)=>{
+      const amt = totals[p.id];
+      lines.push((i+1)+". "+p.name+": "+(amt>0?"+":"")+"$"+amt);
+    });
+    lines.push("");
+    lines.push("Hole-by-Hole:");
+    const holeNums = Object.keys(state.holes).map(Number).sort((a,b)=>a-b).filter(n=>state.holes[n].locked);
+    if(holeNums.length===0){
+      lines.push("No holes completed yet.");
+    } else {
+      holeNums.forEach(num=>{
+        const hs = state.holes[num];
+        lines.push("Hole "+num+(isHawkHole(num)?" (Hawk Hole)":"")+" \u2014 "+modeLabelFor(hs)+" \u2014 Bet $"+effectiveBet(hs)+" \u2014 "+winnerLabel(hs));
+        const deltaLine = state.players.map(p=>{
+          const d = hs.deltas ? (hs.deltas[p.id]||0) : 0;
+          return p.name+" "+(d>0?"+":"")+"$"+d;
+        }).join(", ");
+        lines.push("   "+deltaLine);
+      });
+    }
+    return lines.join("\n");
+  }
+
+  function renderSummary(){
+    const wrap = el("div");
+
+    const standCard = el("div","card");
+    standCard.appendChild(el("h2","section-title","Final Money Standings"));
+    const totals = cumulativeTotals(HOLES_COUNT+1);
+    const ranked = state.players.slice().sort((a,b)=>totals[b.id]-totals[a.id]);
+    ranked.forEach((p,i)=>{
+      const row = el("div","standing-row");
+      row.appendChild(el("div","standing-rank",String(i+1)));
+      row.appendChild(el("div","standing-name",p.name));
+      const {cls,text} = fmtMoney(totals[p.id]);
+      row.appendChild(el("div","money "+cls,text));
+      standCard.appendChild(row);
+    });
+    wrap.appendChild(standCard);
+
+    const histCard = el("div","card");
+    histCard.appendChild(el("h2","section-title","Hole-by-Hole Recap"));
+    const holeNums = Object.keys(state.holes).map(Number).sort((a,b)=>a-b).filter(n=>state.holes[n].locked);
+    if(holeNums.length===0){
+      histCard.appendChild(el("div","empty","No holes completed yet."));
+    } else {
+      holeNums.forEach(num=>{
+        const hs = state.holes[num];
+        const row = el("div","history-hole");
+        row.style.cursor = "default";
+        const left = el("div");
+        left.appendChild(el("div",null,"Hole "+num+(isHawkHole(num)?" \u2014 Hawk Hole":"")));
+        const concedeNote = hs.concededBy ? " \u00b7 conceded" : "";
+        left.appendChild(el("div","helptext",modeLabelFor(hs)+" \u00b7 Bet $"+effectiveBet(hs)+concedeNote));
+        left.appendChild(el("div","helptext",winnerLabel(hs)));
+        row.appendChild(left);
+        const right = el("div");
+        right.style.textAlign = "right";
+        state.players.forEach(p=>{
+          const d = hs.deltas ? (hs.deltas[p.id]||0) : 0;
+          if(d===0) return;
+          const {cls,text} = fmtMoney(d);
+          const line = el("div","helptext");
+          line.innerHTML = p.name+": <span class=\"money "+cls+"\">"+text+"</span>";
+          right.appendChild(line);
+        });
+        row.appendChild(right);
+        histCard.appendChild(row);
+      });
+    }
+    wrap.appendChild(histCard);
+
+    const shareCard = el("div","card");
+    shareCard.appendChild(el("h2","section-title","Share Summary"));
+    shareCard.appendChild(el("div","note","Copy this recap to text or email to your group."));
+    const textarea = document.createElement("textarea");
+    textarea.id = "summary-textarea";
+    textarea.readOnly = true;
+    textarea.style.width = "100%";
+    textarea.style.minHeight = "220px";
+    textarea.style.background = "var(--pine-dark)";
+    textarea.style.color = "var(--cream)";
+    textarea.style.border = "1px solid var(--line)";
+    textarea.style.borderRadius = "8px";
+    textarea.style.padding = "10px 11px";
+    textarea.style.fontFamily = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+    textarea.style.fontSize = "0.82rem";
+    textarea.style.marginTop = "8px";
+    textarea.value = buildSummaryText();
+    shareCard.appendChild(textarea);
+
+    const copyBtn = el("button","btn","Copy to Clipboard");
+    copyBtn.style.marginTop = "10px";
+    copyBtn.onclick = async ()=>{
+      textarea.select();
+      try{
+        await navigator.clipboard.writeText(textarea.value);
+        copyBtn.textContent = "Copied!";
+      }catch(e){
+        try{
+          document.execCommand("copy");
+          copyBtn.textContent = "Copied!";
+        }catch(err){
+          copyBtn.textContent = "Select the text above to copy";
+        }
+      }
+      setTimeout(()=>{ copyBtn.textContent = "Copy to Clipboard"; }, 1500);
+    };
+    shareCard.appendChild(copyBtn);
+    wrap.appendChild(shareCard);
+
+    return wrap;
+  }
+
+  // ---- RULES ----
+  function ruleSection(title, paragraphs){
+    const card = el("div","card");
+    card.appendChild(el("h2","section-title",title));
+    paragraphs.forEach(p=>card.appendChild(el("div","note",p)));
+    return card;
+  }
+
+  function renderRules(){
+    const wrap = el("div");
+
+    wrap.appendChild(ruleSection("Overview", [
+      "Hawk is a 5-player betting game played over 18 holes. One player is \u201cthe Hawk\u201d on every hole, chosen either by tee-off order or, late in the round, by who's losing the most money."
+    ]));
+
+    wrap.appendChild(ruleSection("Playing Order &amp; The Hawk", [
+      "Before Hole 1, the group sets a tee order (the ball-toss order). Player 1 in that order is the Hawk on Hole 1, Player 2 on Hole 2, and so on \u2014 the rotation repeats through Hole 15.",
+      "On Holes 16, 17 and 18, the rotation stops: the Hawk is automatically whoever is down the most money at that point (you can always override the suggestion if there's a tie or dispute)."
+    ]));
+
+    wrap.appendChild(ruleSection("Teams", [
+      "On each hole the Hawk either picks a partner, goes alone, or gets dumped:",
+      "\u2022 Pick a Partner \u2014 the Hawk and partner play as a 2-player team against the other 3.",
+      "\u2022 Hawk Goes Alone \u2014 the Hawk didn't pick a partner before leaving the tee box, so the Hawk plays solo against all 4 other players.",
+      "\u2022 Partner Dumps \u2014 the picked partner declines the Hawk's invitation. The dumping partner now plays solo against the other four, which includes the Hawk."
+    ]));
+
+    wrap.appendChild(ruleSection("Handicaps &amp; Strokes", [
+      "Each player's strokes are their handicap index minus the lowest index in the group, rounded down. The lowest-index player always plays with 0 strokes.",
+      "Those strokes fall on the hardest holes first, based on the selected course's hole ratings (rank 1 = hardest). A 3-stroke player gets a shot on whichever three holes are rated 1, 2 and 3.",
+      "The app shows exactly which holes each player gets a stroke on on Setup, and flags it hole-by-hole during Play."
+    ]));
+
+    wrap.appendChild(ruleSection("The Bet", [
+      "The starting bet is $2 per hole, except Holes 16\u201318 which start at $6.",
+      "The bet doubles automatically any time the Hawk goes alone or gets dumped (a solo hole is always worth double).",
+      "The bet also doubles any time the winning team makes a birdie \u2014 tap the \u{1F426} Birdie button to apply it.",
+      "Either side can double the bet further at any point using the Double Bet button \u2014 it can stack more than once on a hole if the group keeps upping the stakes.",
+      "If one side would rather pay up than take a double, they can concede the hole instead \u2014 the other side wins the bet regardless of the score."
+    ]));
+
+    wrap.appendChild(ruleSection("Deciding the Winner &amp; Payout Math", [
+      "Once scores are compared for the hole, mark which side won, tie it (no money changes hands), or record a concession.",
+      "The payout is always based on the bet times the size of the larger / non-Hawk side of the matchup \u2014 3 players in a normal 2-vs-3 hole, or 4 players when someone's playing solo \u2014 regardless of which side actually wins.",
+      "That total is then split evenly across whichever side won, and paid evenly by whichever side lost, always rounded to a whole dollar.",
+      "Example: bet is $2, the Hawk's 2-player team loses to the other 3 \u2014 the Hawk team pays $6 total ($2 \u00d7 3), split $3 each; the 3 winners split that $6, or $2 each.",
+      "Example: bet is $8, the Hawk's 2-player team wins \u2014 pool is still based on the 3-person side ($8 \u00d7 3 = $24): the losers pay $8 each, the 2 winners split $24, or $12 each."
+    ]));
+
+    wrap.appendChild(ruleSection("Tracking Money", [
+      "Every confirmed hole updates each player's running total. The Money tab shows current standings at any point in the round, and Summary gives a full recap \u2014 final standings plus every hole's result \u2014 that you can copy and share with the group."
+    ]));
+
+    return wrap;
+  }
+
+  // ---- GOLF / STROKE PLAY: setup ----
+  function renderGSetup(){
+    const wrap = el("div");
+    const isStroke = !!gState.useNet;
+    const allHoles = [...Array(18)].map((_,i)=>i+1);
+
+    const countCard = el("div","card");
+    countCard.appendChild(el("h2","section-title","Players"));
+    countCard.appendChild(el("div","note","Enter each player's name (and handicap index, if you'll use net scoring) \u2014 1\u20134 players."));
+    const countRow = el("div","btn-row");
+    [1,2,3,4].forEach(n=>{
+      const b = el("button","btn "+(gState.players.length===n?"":"secondary"), String(n)+" Player"+(n>1?"s":""));
+      b.onclick = ()=>{
+        const current = gState.players;
+        const next = [];
+        for(let i=0;i<n;i++){
+          next.push(current[i] || {id:"g"+(i+1)+"-"+Date.now(), name:"Player "+(i+1), index:0});
+        }
+        gState.players = next;
+        gSave(); render();
+      };
+      countRow.appendChild(b);
+    });
+    countCard.appendChild(countRow);
+    wrap.appendChild(countCard);
+
+    const playersCard = el("div","card");
+    gState.players.forEach((p,i)=>{
+      const row = el("div","row"); row.style.marginBottom="12px";
+      const nameWrap = el("div");
+      nameWrap.appendChild(el("label",null,"Player "+(i+1)+" Name"));
+      const nameInput = el("input"); nameInput.id="g-name-"+p.id; nameInput.type="text"; nameInput.value=p.name;
+      nameInput.oninput = ()=>{ p.name=nameInput.value; gSave(); render(); };
+      nameInput.onfocus = selectOnFocus(nameInput);
+      nameInput.onblur = ()=>{ if(!p.name){ p.name="Player "+(i+1); gSave(); render(); } };
+      nameWrap.appendChild(nameInput);
+      row.appendChild(nameWrap);
+
+      const idxWrap = el("div");
+      idxWrap.appendChild(el("label",null,"Handicap Index"));
+      const idxInput = el("input"); idxInput.id="g-index-"+p.id; idxInput.type="number"; idxInput.step="0.1"; idxInput.value=p.index;
+      idxInput.oninput = ()=>{ p.index = idxInput.value===""?0:Number(idxInput.value); gSave(); render(); };
+      idxInput.onfocus = selectOnFocus(idxInput);
+      idxWrap.appendChild(idxInput);
+      row.appendChild(idxWrap);
+      playersCard.appendChild(row);
+    });
+    wrap.appendChild(playersCard);
+
+    const scoringCard = el("div","card");
+    scoringCard.appendChild(el("h2","section-title","Scoring"));
+    const netLine = el("div","toggle-line");
+    netLine.appendChild(el("div","desc","Use net scores (handicap strokes count). Off by default \u2014 gross score decides everything."));
+    const netSw = el("label","switch");
+    const netCb = el("input"); netCb.type="checkbox"; netCb.checked=!!gState.useNet;
+    netCb.onchange = ()=>{ gState.useNet = netCb.checked; gSave(); render(); };
+    netSw.appendChild(netCb); netSw.appendChild(el("span","slider"));
+    netLine.appendChild(netSw);
+    scoringCard.appendChild(netLine);
+    wrap.appendChild(scoringCard);
+
+    const courseCard = buildCourseCard({
+      courseKey: gState.courseKey,
+      onCourseChange: (newKey)=>{
+        gState.courseKey = newKey;
+        gState.tee = firstTeeKeyFor(newKey);
+        gSave(); render();
+      },
+      teeKey: gState.tee,
+      onTeeChange: (newTee)=>{ gState.tee = newTee; gSave(); render(); }
+    });
+    courseCard.appendChild(el("div","note","Total: "+yardTotal(gState.tee, allHoles)+" yds, Par "+parTotal(allHoles)+"."));
+    wrap.appendChild(courseCard);
+
+    if(isStroke){
+      const strokeCard = el("div","card");
+      strokeCard.appendChild(el("h2","section-title","Strokes"));
+      strokeCard.appendChild(el("div","note","Based on "+COURSES[gState.courseKey].name+"'s hole ratings. Lowest index plays 0 strokes; others get strokes on the hardest holes first."));
+      const table = el("table","ref-table");
+      const thead = el("tr");
+      ["Player","Index","Strokes","Strokes On Holes"].forEach(t=>thead.appendChild(el("th",null,t)));
+      table.appendChild(thead);
+      gState.players.forEach(p=>{
+        const tr = el("tr");
+        tr.appendChild(el("td",null,p.name));
+        tr.appendChild(el("td",null,String(p.index)));
+        const strokes = gStrokesFor(gState.players, p.id);
+        tr.appendChild(el("td",null,String(strokes)));
+        const holes = gStrokeHoleNumbers(gState.players, p.id);
+        tr.appendChild(el("td",null, holes.length?holes.join(", "):"\u2014"));
+        table.appendChild(tr);
+      });
+      strokeCard.appendChild(table);
+      wrap.appendChild(strokeCard);
+    }
+
+    const demoCard = el("div","card");
+    demoCard.appendChild(el("h2","section-title","Demo"));
+    demoCard.appendChild(el("div","note","Instantly fill in example players (John, Paul, Ringo, George, Chris) with random scores for a full 18-hole round, so you can see how Golf scorekeeping works."));
+    const simBtn = el("button","btn secondary","\u{1F3B2} Simulate Full Round");
+    simBtn.onclick = simulateGRound;
+    demoCard.appendChild(simBtn);
+    wrap.appendChild(demoCard);
+
+    const btnRow = el("div","btn-row");
+    const startBtn = el("button","btn","Start Round \u2192");
+    startBtn.onclick = ()=>{ gState.setupDone=true; gSave(); view="g-play"; render(); };
+    btnRow.appendChild(startBtn);
+    if(Object.keys(gState.scores).length>0){
+      const resetBtn = el("button","btn danger","Reset entire round");
+      resetBtn.onclick = ()=>{
+        if(confirm("This clears all holes and scores for this round. Continue?")){
+          const players = gState.players, tee = gState.tee, courseKey = gState.courseKey, useNet = gState.useNet;
+          gState = defaultGState();
+          gState.players = players; gState.tee = tee; gState.courseKey = courseKey; gState.useNet = useNet;
+          gSave(); render();
+        }
+      };
+      btnRow.appendChild(resetBtn);
+    }
+    wrap.appendChild(btnRow);
+    return wrap;
+  }
+
+  // ---- GOLF / STROKE PLAY: play ----
+  function renderGPlay(){
+    const wrap = el("div");
+    const isStroke = !!gState.useNet;
+    const num = gState.currentHole;
+    if(!gState.scores[num]) gState.scores[num] = {};
+    gState.players.forEach(p=>{ if(gState.scores[num][p.id]===undefined || gState.scores[num][p.id]===null){ gState.scores[num][p.id]=PAR[num]; } });
+
+    const head = el("div","card");
+    const hh = el("div","hole-head");
+    const left = el("div");
+    left.appendChild(el("div","hole-num","Hole "+num));
+    left.appendChild(el("div","hole-meta","Par "+PAR[num]+" \u00b7 "+TEES[gState.tee].yards[num]+" yds \u00b7 "+TEES[gState.tee].label));
+    hh.appendChild(left);
+    head.appendChild(hh);
+    wrap.appendChild(head);
+
+    const scoreCard = el("div","card");
+    scoreCard.appendChild(el("h2","section-title","Scores"));
+    scoreCard.appendChild(el("div","note","Par "+PAR[num]+" is filled in by default \u2014 tap a shape or type a score to override."));
+    gState.players.forEach(p=>{
+      const block = el("div","score-entry-block");
+      const top = el("div","score-entry-top");
+      const getsStroke = isStroke && gStrokeHoleNumbers(gState.players,p.id).includes(num);
+      top.appendChild(el("div","score-entry-name",p.name));
+      const gross = gState.scores[num][p.id];
+      if(isStroke){
+        const net = (gross===null||gross===undefined) ? null : gross-(getsStroke?1:0);
+        top.appendChild(el("div","score-entry-meta", (getsStroke?"Stroke here \u00b7 ":"")+(net===null?"No score yet":"Net "+net)));
+      }
+      block.appendChild(top);
+      block.appendChild(buildScoreButtonRow(PAR[num], gross, (value)=>{
+        gState.scores[num][p.id] = value;
+        gSave(); render();
+      }, "g-score-"+num+"-"+p.id));
+      scoreCard.appendChild(block);
+    });
+    wrap.appendChild(scoreCard);
+
+    const totalsCard = el("div","card");
+    totalsCard.appendChild(el("h2","section-title","Running Totals (thru "+num+")"));
+    const totTable = el("table","ref-table");
+    const totHead = el("tr");
+    const totCols = isStroke ? ["Player","Gross","To Par","Net","Net To Par"] : ["Player","Gross","To Par"];
+    totCols.forEach(t=>totHead.appendChild(el("th",null,t)));
+    totTable.appendChild(totHead);
+    gState.players.forEach(p=>{
+      let grossTotal=0, netTotal=0, parSoFar=0;
+      for(let h=1; h<=num; h++){
+        const g = gState.scores[h] ? gState.scores[h][p.id] : null;
+        if(g!==null && g!==undefined){
+          grossTotal += g; parSoFar += PAR[h];
+          if(isStroke) netTotal += g - (gStrokeHoleNumbers(gState.players,p.id).includes(h)?1:0);
+        }
+      }
+      const toPar = grossTotal - parSoFar;
+      const toParStr = toPar===0?"E":(toPar>0?"+"+toPar:String(toPar));
+      const tr = el("tr");
+      tr.appendChild(el("td",null,p.name));
+      tr.appendChild(el("td",null,String(grossTotal)));
+      tr.appendChild(el("td",null,toParStr));
+      if(isStroke){
+        const netToPar = netTotal - parSoFar;
+        const netToParStr = netToPar===0?"E":(netToPar>0?"+"+netToPar:String(netToPar));
+        tr.appendChild(el("td",null,String(netTotal)));
+        tr.appendChild(el("td",null,netToParStr));
+      }
+      totTable.appendChild(tr);
+    });
+    totalsCard.appendChild(totTable);
+    wrap.appendChild(totalsCard);
+
+    const navRow = el("div","btn-row");
+    if(num>1){
+      const prevBtn = el("button","btn secondary","\u2190 Hole "+(num-1));
+      prevBtn.onclick = ()=>{ gState.currentHole=num-1; gSave(); render(); };
+      navRow.appendChild(prevBtn);
+    }
+    if(num<18){
+      const nextBtn = el("button","btn secondary","Hole "+(num+1)+" \u2192");
+      nextBtn.onclick = ()=>{ gState.currentHole=num+1; gSave(); render(); };
+      navRow.appendChild(nextBtn);
+    } else {
+      const finishBtn = el("button","btn","See Summary");
+      finishBtn.onclick = ()=>{ view="g-summary"; render(); };
+      navRow.appendChild(finishBtn);
+    }
+    wrap.appendChild(navRow);
+    return wrap;
+  }
+
+  // ---- GOLF / STROKE PLAY: summary ----
+  function buildGSummaryText(){
+    const isStroke = !!gState.useNet;
+    const allHoles = [...Array(18)].map((_,i)=>i+1);
+    const lines = [];
+    lines.push((isStroke?"STROKE PLAY":"GOLF")+" \u2014 "+COURSES[gState.courseKey].name+" ("+TEES[gState.tee].label+")");
+    lines.push("");
+    gState.players.forEach(p=>{
+      let sum=0, netSum=0, any=false;
+      allHoles.forEach(h=>{
+        const g = gState.scores[h] ? gState.scores[h][p.id] : null;
+        if(g!==null && g!==undefined){
+          sum+=g; any=true;
+          if(isStroke) netSum += g - (gStrokeHoleNumbers(gState.players,p.id).includes(h)?1:0);
+        }
+      });
+      const toPar = sum-71;
+      let line = p.name+": "+(any?sum:"\u2014");
+      if(any) line += " ("+(toPar===0?"E":(toPar>0?"+"+toPar:String(toPar)))+")";
+      if(isStroke && any) line += " \u2014 Net "+netSum;
+      lines.push(line);
+    });
+    return lines.join("\n");
+  }
+
+  function renderGSummary(){
+    const wrap = el("div");
+    const isStroke = !!gState.useNet;
+    const allHoles = [...Array(18)].map((_,i)=>i+1);
+
+    const card = el("div","card");
+    card.appendChild(el("h2","section-title","Scorecard"));
+    const table = el("table","ref-table");
+    const headRow = el("tr");
+    headRow.appendChild(el("th",null,"Hole"));
+    headRow.appendChild(el("th",null,"Par"));
+    gState.players.forEach(p=>headRow.appendChild(el("th",null,p.name)));
+    table.appendChild(headRow);
+
+    function addRow(holeNums, label){
+      const tr = el("tr");
+      tr.appendChild(el("td",null,label));
+      tr.appendChild(el("td",null, String(parTotal(holeNums))));
+      gState.players.forEach(p=>{
+        let sum=0, netSum=0, any=false;
+        holeNums.forEach(h=>{
+          const g = gState.scores[h] ? gState.scores[h][p.id] : null;
+          if(g!==null && g!==undefined){
+            sum+=g; any=true;
+            if(isStroke) netSum += g - (gStrokeHoleNumbers(gState.players,p.id).includes(h)?1:0);
+          }
+        });
+        let text = any ? String(sum) : "\u2014";
+        if(isStroke && any) text += " ("+netSum+")";
+        tr.appendChild(el("td",null,text));
+      });
+      table.appendChild(tr);
+    }
+
+    for(let h=1;h<=9;h++) addRow([h], String(h));
+    addRow(allHoles.slice(0,9), "OUT");
+    for(let h=10;h<=18;h++) addRow([h], String(h));
+    addRow(allHoles.slice(9,18), "IN");
+    addRow(allHoles, "TOTAL");
+    card.appendChild(table);
+    if(isStroke) card.appendChild(el("div","note","Gross score shown, with net score in parentheses."));
+    wrap.appendChild(card);
+
+    const shareCard = el("div","card");
+    shareCard.appendChild(el("h2","section-title","Share Summary"));
+    shareCard.appendChild(el("div","note","Copy this recap to text or email to your group."));
+    const textarea = document.createElement("textarea");
+    textarea.readOnly = true;
+    textarea.style.width = "100%";
+    textarea.style.minHeight = "160px";
+    textarea.style.background = "var(--pine-dark)";
+    textarea.style.color = "var(--cream)";
+    textarea.style.border = "1px solid var(--line)";
+    textarea.style.borderRadius = "8px";
+    textarea.style.padding = "10px 11px";
+    textarea.style.fontFamily = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+    textarea.style.fontSize = "0.82rem";
+    textarea.style.marginTop = "8px";
+    textarea.value = buildGSummaryText();
+    shareCard.appendChild(textarea);
+    const copyBtn = el("button","btn","Copy to Clipboard");
+    copyBtn.style.marginTop = "10px";
+    copyBtn.onclick = async ()=>{
+      textarea.select();
+      try{ await navigator.clipboard.writeText(textarea.value); copyBtn.textContent="Copied!"; }
+      catch(e){
+        try{ document.execCommand("copy"); copyBtn.textContent="Copied!"; }
+        catch(err){ copyBtn.textContent="Select the text above to copy"; }
+      }
+      setTimeout(()=>{ copyBtn.textContent="Copy to Clipboard"; }, 1500);
+    };
+    shareCard.appendChild(copyBtn);
+    wrap.appendChild(shareCard);
+
+    return wrap;
+  }
+
+  // ---- POINTS GAME: setup ----
+  function renderPSetup(){
+    const wrap = el("div");
+    const allHoles = [...Array(18)].map((_,i)=>i+1);
+
+    const countCard = el("div","card");
+    countCard.appendChild(el("h2","section-title","Players"));
+    countCard.appendChild(el("div","note","Enter each player's name and handicap index (1\u20134 players). Handicaps determine the Low Net point each hole."));
+    const countRow = el("div","btn-row");
+    [1,2,3,4].forEach(n=>{
+      const b = el("button","btn "+(pState.players.length===n?"":"secondary"), String(n)+" Player"+(n>1?"s":""));
+      b.onclick = ()=>{
+        const current = pState.players;
+        const next = [];
+        for(let i=0;i<n;i++){
+          next.push(current[i] || {id:"pt"+(i+1)+"-"+Date.now(), name:"Player "+(i+1), index:0});
+        }
+        pState.players = next;
+        pSave(); render();
+      };
+      countRow.appendChild(b);
+    });
+    countCard.appendChild(countRow);
+    wrap.appendChild(countCard);
+
+    const playersCard = el("div","card");
+    pState.players.forEach((p,i)=>{
+      const row = el("div","row"); row.style.marginBottom="12px";
+      const nameWrap = el("div");
+      nameWrap.appendChild(el("label",null,"Player "+(i+1)+" Name"));
+      const nameInput = el("input"); nameInput.id="pt-name-"+p.id; nameInput.type="text"; nameInput.value=p.name;
+      nameInput.oninput = ()=>{ p.name=nameInput.value; pSave(); render(); };
+      nameInput.onfocus = selectOnFocus(nameInput);
+      nameInput.onblur = ()=>{ if(!p.name){ p.name="Player "+(i+1); pSave(); render(); } };
+      nameWrap.appendChild(nameInput);
+      row.appendChild(nameWrap);
+
+      const idxWrap = el("div");
+      idxWrap.appendChild(el("label",null,"Handicap Index"));
+      const idxInput = el("input"); idxInput.id="pt-index-"+p.id; idxInput.type="number"; idxInput.step="0.1"; idxInput.value=p.index;
+      idxInput.oninput = ()=>{ p.index = idxInput.value===""?0:Number(idxInput.value); pSave(); render(); };
+      idxInput.onfocus = selectOnFocus(idxInput);
+      idxWrap.appendChild(idxInput);
+      row.appendChild(idxWrap);
+      playersCard.appendChild(row);
+    });
+    wrap.appendChild(playersCard);
+
+    const courseCard = buildCourseCard({
+      courseKey: pState.courseKey,
+      onCourseChange: (newKey)=>{
+        pState.courseKey = newKey;
+        pState.tee = firstTeeKeyFor(newKey);
+        pSave(); render();
+      },
+      teeKey: pState.tee,
+      onTeeChange: (newTee)=>{ pState.tee = newTee; pSave(); render(); }
+    });
+    courseCard.appendChild(el("div","note","Total: "+yardTotal(pState.tee, allHoles)+" yds, Par "+parTotal(allHoles)+"."));
+    wrap.appendChild(courseCard);
+
+    const strokeCard = el("div","card");
+    strokeCard.appendChild(el("h2","section-title","Strokes"));
+    strokeCard.appendChild(el("div","note","Based on "+COURSES[pState.courseKey].name+"'s hole ratings. Lowest index plays 0 strokes; others get strokes on the hardest holes first."));
+    const table = el("table","ref-table");
+    const thead = el("tr");
+    ["Player","Index","Strokes","Strokes On Holes"].forEach(t=>thead.appendChild(el("th",null,t)));
+    table.appendChild(thead);
+    pState.players.forEach(p=>{
+      const tr = el("tr");
+      tr.appendChild(el("td",null,p.name));
+      tr.appendChild(el("td",null,String(p.index)));
+      const strokes = gStrokesFor(pState.players, p.id);
+      tr.appendChild(el("td",null,String(strokes)));
+      const holes = gStrokeHoleNumbers(pState.players, p.id);
+      tr.appendChild(el("td",null, holes.length?holes.join(", "):"\u2014"));
+      table.appendChild(tr);
+    });
+    strokeCard.appendChild(table);
+    wrap.appendChild(strokeCard);
+
+    const catCard = el("div","card");
+    catCard.appendChild(el("h2","section-title","Points"));
+    catCard.appendChild(el("div","note","Every hole automatically offers a Long Drive point (par 4s/5s), a Closest to Pin point (par 3s), and a Low Net point. Add any extra point categories your group wants below (e.g. First to Hole Out, Birdies, Sandies)."));
+    (pState.extraCategories||[]).forEach((name,i)=>{
+      const row = el("div","summary-row");
+      row.appendChild(el("div",null,"\u2605 "+name));
+      const delBtn = el("button","btn ghost","Remove");
+      delBtn.onclick = ()=>{ pState.extraCategories.splice(i,1); pSave(); render(); };
+      row.appendChild(delBtn);
+      catCard.appendChild(row);
+    });
+    const addRow = el("div","row");
+    const addWrap = el("div");
+    const addInput = el("input"); addInput.id="pt-new-category"; addInput.type="text"; addInput.placeholder="e.g. First to Hole Out";
+    addInput.onfocus = selectOnFocus(addInput);
+    addWrap.appendChild(addInput);
+    addRow.appendChild(addWrap);
+    catCard.appendChild(addRow);
+    const addBtn = el("button","btn secondary","+ Add Category");
+    addBtn.style.marginTop="8px";
+    addBtn.onclick = ()=>{
+      const val = addInput.value.trim();
+      if(val){
+        if(!pState.extraCategories) pState.extraCategories=[];
+        pState.extraCategories.push(val);
+        pSave(); render();
+      }
+    };
+    catCard.appendChild(addBtn);
+    wrap.appendChild(catCard);
+
+    const betCard = el("div","card");
+    betCard.appendChild(el("h2","section-title","Bet"));
+    const valWrap = el("div");
+    valWrap.appendChild(el("label",null,"$ Per Point"));
+    const valInput = el("input"); valInput.id="pt-value"; valInput.type="number"; valInput.min=0; valInput.step="1"; valInput.value=pState.pointValue;
+    valInput.onfocus = selectOnFocus(valInput);
+    valInput.oninput = ()=>{ pState.pointValue = valInput.value===""?0:Math.round(Number(valInput.value)); pSave(); render(); };
+    valWrap.appendChild(valInput);
+    betCard.appendChild(valWrap);
+
+    const carryLine = el("div","toggle-line");
+    carryLine.appendChild(el("div","desc","Carry over unclaimed points to the next hole (instead of forfeiting them on a tie or no qualifier)"));
+    const carrySw = el("label","switch");
+    const carryCb = el("input"); carryCb.type="checkbox"; carryCb.checked=!!pState.carryOver;
+    carryCb.onchange = ()=>{ pState.carryOver = carryCb.checked; pSave(); render(); };
+    carrySw.appendChild(carryCb); carrySw.appendChild(el("span","slider"));
+    carryLine.appendChild(carrySw);
+    betCard.appendChild(carryLine);
+    wrap.appendChild(betCard);
+
+    const demoCard = el("div","card");
+    demoCard.appendChild(el("h2","section-title","Demo"));
+    demoCard.appendChild(el("div","note","Instantly fill in a full 18-hole round with random scores (birdie to double bogey) and random point winners, so you can see how Bomb & Stick and its money tracking work."));
+    const simBtn = el("button","btn secondary","\u{1F3B2} Simulate Full Round");
+    simBtn.onclick = simulatePointsRound;
+    demoCard.appendChild(simBtn);
+    wrap.appendChild(demoCard);
+
+    const btnRow = el("div","btn-row");
+    const startBtn = el("button","btn","Start Round \u2192");
+    startBtn.onclick = ()=>{ pState.setupDone=true; pSave(); view="p-play"; render(); };
+    btnRow.appendChild(startBtn);
+    if(Object.keys(pState.holes).length>0){
+      const resetBtn = el("button","btn danger","Reset entire round");
+      resetBtn.onclick = ()=>{
+        if(confirm("This clears all holes, scores and points for this round. Continue?")){
+          const players=pState.players, tee=pState.tee, courseKey=pState.courseKey, pointValue=pState.pointValue, carryOver=pState.carryOver, extraCategories=pState.extraCategories;
+          pState = defaultPState();
+          pState.players=players; pState.tee=tee; pState.courseKey=courseKey; pState.pointValue=pointValue; pState.carryOver=carryOver; pState.extraCategories=extraCategories;
+          pSave(); render();
+        }
+      };
+      btnRow.appendChild(resetBtn);
+    }
+    wrap.appendChild(btnRow);
+    return wrap;
+  }
+
+  // ---- POINTS GAME: play ----
+  function renderPPlay(){
+    const wrap = el("div");
+    const num = pState.currentHole;
+    const ph = getPointsHole(num);
+
+    const head = el("div","card");
+    const hh = el("div","hole-head");
+    const left = el("div");
+    left.appendChild(el("div","hole-num","Hole "+num));
+    left.appendChild(el("div","hole-meta","Par "+PAR[num]+" \u00b7 "+TEES[pState.tee].yards[num]+" yds \u00b7 "+TEES[pState.tee].label));
+    hh.appendChild(left);
+    head.appendChild(hh);
+    wrap.appendChild(head);
+
+    const scoreCard = el("div","card");
+    scoreCard.appendChild(el("h2","section-title","Scores"));
+    scoreCard.appendChild(el("div","note","Par "+PAR[num]+" is filled in by default \u2014 tap a shape or type a score to override. This also drives the Low Net point below."));
+    pState.players.forEach(p=>{
+      const block = el("div","score-entry-block");
+      const top = el("div","score-entry-top");
+      const getsStroke = gStrokeHoleNumbers(pState.players, p.id).includes(num);
+      top.appendChild(el("div","score-entry-name",p.name));
+      const gross = ph.scores[p.id];
+      const net = (gross===null||gross===undefined) ? null : gross-(getsStroke?1:0);
+      top.appendChild(el("div","score-entry-meta", (getsStroke?"Stroke here \u00b7 ":"")+(net===null?"No score yet":"Net "+net)));
+      block.appendChild(top);
+      block.appendChild(buildScoreButtonRow(PAR[num], gross, (value)=>{
+        ph.scores[p.id] = value;
+        pSave(); render();
+      }, "pt-score-"+num+"-"+p.id));
+      scoreCard.appendChild(block);
+    });
+    wrap.appendChild(scoreCard);
+
+    const catsCard = el("div","card");
+    catsCard.appendChild(el("h2","section-title","Points This Hole"));
+    const cats = categoriesForHole(num);
+    cats.forEach(cat=>{
+      const catBlock = el("div","score-entry-block");
+      const catTop = el("div","score-entry-top");
+      catTop.appendChild(el("div","score-entry-name",cat.icon+" "+cat.label));
+      catBlock.appendChild(catTop);
+      if(cat.auto){
+        const winnerId = pointsLowNetWinner(num);
+        catBlock.appendChild(el("div","note", winnerId ? (playerNameIn(pState.players,winnerId)+" wins Low Net automatically.") : "Tied (or no scores yet) \u2014 no point awarded this hole."+(pState.carryOver?" It carries to the next hole.":"")));
+      } else {
+        const chipRow = el("div","row");
+        pState.players.forEach(p=>{
+          const chip = el("div","player-chip"+(ph.categoryWinners[cat.key]===p.id?" selected":""));
+          chip.appendChild(el("div","dot"));
+          chip.appendChild(el("div",null,p.name));
+          chip.onclick = ()=>{
+            ph.categoryWinners[cat.key] = (ph.categoryWinners[cat.key]===p.id) ? null : p.id;
+            pSave(); render();
+          };
+          chipRow.appendChild(chip);
+        });
+        catBlock.appendChild(chipRow);
+        if(!ph.categoryWinners[cat.key]){
+          catBlock.appendChild(el("div","note","No winner selected \u2014 no point awarded this hole."+(pState.carryOver?" It carries to the next hole.":"")));
+        }
+      }
+      catsCard.appendChild(catBlock);
+    });
+    wrap.appendChild(catsCard);
+
+    const resultCard = el("div","card");
+    resultCard.appendChild(el("h2","section-title","Hole Result"));
+    const results = computePointsResults();
+    const deltas = results.holeDeltas[num] || {};
+    pState.players.forEach(p=>{
+      const row = el("div","summary-row");
+      row.appendChild(el("div",null,p.name));
+      const {cls,text} = fmtMoney(deltas[p.id]||0);
+      row.appendChild(el("div","money "+cls, text));
+      resultCard.appendChild(row);
+    });
+    wrap.appendChild(resultCard);
+
+    const navRow = el("div","btn-row");
+    if(num>1){
+      const prevBtn = el("button","btn secondary","\u2190 Hole "+(num-1));
+      prevBtn.onclick = ()=>{ pState.currentHole=num-1; pSave(); render(); };
+      navRow.appendChild(prevBtn);
+    }
+    if(num<18){
+      const nextBtn = el("button","btn secondary","Hole "+(num+1)+" \u2192");
+      nextBtn.onclick = ()=>{ pState.currentHole=num+1; pSave(); render(); };
+      navRow.appendChild(nextBtn);
+    } else {
+      const finishBtn = el("button","btn","See Summary");
+      finishBtn.onclick = ()=>{ view="p-summary"; render(); };
+      navRow.appendChild(finishBtn);
+    }
+    wrap.appendChild(navRow);
+    return wrap;
+  }
+
+  function playerNameIn(players, pid){
+    const p = players.find(x=>x.id===pid);
+    return p ? p.name : "?";
+  }
+
+  // ---- POINTS GAME: standings ----
+  function renderPStandings(){
+    const wrap = el("div");
+    const card = el("div","card");
+    card.appendChild(el("h2","section-title","Money Standings"));
+    const results = computePointsResults();
+    const ranked = pState.players.slice().sort((a,b)=>results.totals[b.id]-results.totals[a.id]);
+    ranked.forEach((p,i)=>{
+      const row = el("div","standing-row");
+      row.appendChild(el("div","standing-rank",String(i+1)));
+      row.appendChild(el("div","standing-name",p.name));
+      const {cls,text} = fmtMoney(results.totals[p.id]);
+      row.appendChild(el("div","money "+cls,text));
+      card.appendChild(row);
+    });
+    const pendingCats = Object.keys(results.carryPot||{}).filter(k=>results.carryPot[k]>0);
+    if(pState.carryOver && pendingCats.length){
+      const names = { longdrive:"Long Drive", cpp:"Closest to Pin", lownet:"Low Net" };
+      const lines = pendingCats.map(k=>{
+        const label = names[k] || (pState.extraCategories && pState.extraCategories[Number(k.replace("extra",""))]) || k;
+        return label+": $"+results.carryPot[k]+" carrying";
+      });
+      card.appendChild(el("div","note","Carrying over: "+lines.join(", ")+"."));
+    }
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  // ---- POINTS GAME: summary ----
+  function buildPSummaryText(){
+    const results = computePointsResults();
+    const lines = [];
+    lines.push("BOMB & STICK \u2014 "+COURSES[pState.courseKey].name+" ("+TEES[pState.tee].label+")");
+    lines.push("$"+pState.pointValue+" per point"+(pState.carryOver?", ties carry over":", ties push (no money)"));
+    lines.push("");
+    lines.push("Final Money Standings:");
+    const ranked = pState.players.slice().sort((a,b)=>results.totals[b.id]-results.totals[a.id]);
+    ranked.forEach((p,i)=>{
+      lines.push((i+1)+". "+p.name+": "+(results.totals[p.id]>0?"+":"")+"$"+results.totals[p.id]);
+    });
+    lines.push("");
+    lines.push("Hole-by-Hole:");
+    const holeNums = Object.keys(pState.holes).map(Number).sort((a,b)=>a-b);
+    if(holeNums.length===0){
+      lines.push("No holes played yet.");
+    } else {
+      holeNums.forEach(h=>{
+        const cats = categoriesForHole(h);
+        const winners = results.holeWinners[h] || {};
+        const parts = cats.map(c=>{
+          const wid = winners[c.key];
+          return c.label+": "+(wid ? playerNameIn(pState.players,wid) : "no winner");
+        });
+        lines.push("Hole "+h+" (Par "+PAR[h]+") \u2014 "+parts.join(", "));
+      });
+    }
+    return lines.join("\n");
+  }
+
+  function renderPSummary(){
+    const wrap = el("div");
+    wrap.appendChild(renderPStandings());
+
+    const histCard = el("div","card");
+    histCard.appendChild(el("h2","section-title","Hole-by-Hole Recap"));
+    const results = computePointsResults();
+    const holeNums = Object.keys(pState.holes).map(Number).sort((a,b)=>a-b);
+    if(holeNums.length===0){
+      histCard.appendChild(el("div","empty","No holes played yet."));
+    } else {
+      holeNums.forEach(h=>{
+        const cats = categoriesForHole(h);
+        const winners = results.holeWinners[h] || {};
+        const row = el("div","history-hole");
+        row.style.cursor="default";
+        const left = el("div");
+        left.appendChild(el("div",null,"Hole "+h+" (Par "+PAR[h]+")"));
+        const parts = cats.map(c=> c.icon+" "+c.label+": "+(winners[c.key] ? playerNameIn(pState.players,winners[c.key]) : "no winner"));
+        left.appendChild(el("div","helptext", parts.join(" \u00b7 ")));
+        row.appendChild(left);
+        histCard.appendChild(row);
+      });
+    }
+    wrap.appendChild(histCard);
+
+    const shareCard = el("div","card");
+    shareCard.appendChild(el("h2","section-title","Share Summary"));
+    shareCard.appendChild(el("div","note","Copy this recap to text or email to your group."));
+    const textarea = document.createElement("textarea");
+    textarea.readOnly = true;
+    textarea.style.width = "100%";
+    textarea.style.minHeight = "160px";
+    textarea.style.background = "var(--pine-dark)";
+    textarea.style.color = "var(--cream)";
+    textarea.style.border = "1px solid var(--line)";
+    textarea.style.borderRadius = "8px";
+    textarea.style.padding = "10px 11px";
+    textarea.style.fontFamily = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+    textarea.style.fontSize = "0.82rem";
+    textarea.style.marginTop = "8px";
+    textarea.value = buildPSummaryText();
+    shareCard.appendChild(textarea);
+    const copyBtn = el("button","btn","Copy to Clipboard");
+    copyBtn.style.marginTop = "10px";
+    copyBtn.onclick = async ()=>{
+      textarea.select();
+      try{ await navigator.clipboard.writeText(textarea.value); copyBtn.textContent="Copied!"; }
+      catch(e){
+        try{ document.execCommand("copy"); copyBtn.textContent="Copied!"; }
+        catch(err){ copyBtn.textContent="Select the text above to copy"; }
+      }
+      setTimeout(()=>{ copyBtn.textContent="Copy to Clipboard"; }, 1500);
+    };
+    shareCard.appendChild(copyBtn);
+    wrap.appendChild(shareCard);
+
+    return wrap;
+  }
+
+  // ---- NASSAU: setup ----
+  function renderNSetup(){
+    const wrap = el("div");
+    const allHoles = NASSAU_ALL;
+
+    const playersCard = el("div","card");
+    playersCard.appendChild(el("h2","section-title","Players"));
+    playersCard.appendChild(el("div","note","Nassau is 4 players, split into two teams of 2. Enter names (and handicaps, if you'll use net scores)."));
+    nState.players.forEach((p,i)=>{
+      const row = el("div","row"); row.style.marginBottom="12px";
+      const nameWrap = el("div");
+      nameWrap.appendChild(el("label",null,"Player "+(i+1)+" Name"));
+      const nameInput = el("input"); nameInput.id="n-name-"+p.id; nameInput.type="text"; nameInput.value=p.name;
+      nameInput.oninput = ()=>{ p.name=nameInput.value; nSave(); render(); };
+      nameInput.onfocus = selectOnFocus(nameInput);
+      nameInput.onblur = ()=>{ if(!p.name){ p.name="Player "+(i+1); nSave(); render(); } };
+      nameWrap.appendChild(nameInput);
+      row.appendChild(nameWrap);
+
+      const idxWrap = el("div");
+      idxWrap.appendChild(el("label",null,"Handicap Index"));
+      const idxInput = el("input"); idxInput.id="n-index-"+p.id; idxInput.type="number"; idxInput.step="0.1"; idxInput.value=p.index;
+      idxInput.oninput = ()=>{ p.index = idxInput.value===""?0:Number(idxInput.value); nSave(); render(); };
+      idxInput.onfocus = selectOnFocus(idxInput);
+      idxWrap.appendChild(idxInput);
+      row.appendChild(idxWrap);
+      playersCard.appendChild(row);
+    });
+    wrap.appendChild(playersCard);
+
+    const teamCard = el("div","card");
+    teamCard.appendChild(el("h2","section-title","Teams"));
+    teamCard.appendChild(el("div","note","Tap a player to switch their team. Each team needs exactly 2 players."));
+    const chipRow = el("div","row");
+    nState.players.forEach(p=>{
+      const team = nState.teamOf[p.id];
+      const chip = el("div","player-chip"+(team==="A"?" selected":""));
+      chip.appendChild(el("div","dot"));
+      chip.appendChild(el("div",null,p.name+" \u2014 Team "+team));
+      chip.onclick = ()=>{
+        nState.teamOf[p.id] = team==="A" ? "B" : "A";
+        nSave(); render();
+      };
+      chipRow.appendChild(chip);
+    });
+    teamCard.appendChild(chipRow);
+    const teamsValid = nTeamsValid();
+    if(teamsValid){
+      teamCard.appendChild(el("div","note","Team A: "+nTeamPlayers("A").map(pid=>playerNameIn(nState.players,pid)).join(" &amp; ")+" \u00b7 Team B: "+nTeamPlayers("B").map(pid=>playerNameIn(nState.players,pid)).join(" &amp; ")));
+    } else {
+      teamCard.appendChild(el("div","note","\u26A0 Teams need to be 2 vs 2 before you can start."));
+    }
+    wrap.appendChild(teamCard);
+
+    const optCard = el("div","card");
+    optCard.appendChild(el("h2","section-title","Bet"));
+    const valWrap = el("div");
+    valWrap.appendChild(el("label",null,"$ Per Player (Front 9, Back 9, and Total 18 each)"));
+    const valInput = el("input"); valInput.id="n-bet"; valInput.type="number"; valInput.min=0; valInput.step="1"; valInput.value=nState.betAmount;
+    valInput.onfocus = selectOnFocus(valInput);
+    valInput.oninput = ()=>{ nState.betAmount = valInput.value===""?0:Math.round(Number(valInput.value)); nSave(); render(); };
+    valWrap.appendChild(valInput);
+    optCard.appendChild(valWrap);
+    optCard.appendChild(el("div","note","$"+nState.betAmount+" bet on the front 9, $"+nState.betAmount+" on the back 9, and $"+nState.betAmount+" on the total 18 \u2014 each paid by every losing player to every winning player."));
+
+    const netLine = el("div","toggle-line");
+    netLine.appendChild(el("div","desc","Use net scores (handicap strokes count). Off by default \u2014 gross score decides everything."));
+    const netSw = el("label","switch");
+    const netCb = el("input"); netCb.type="checkbox"; netCb.checked=!!nState.useNet;
+    netCb.onchange = ()=>{ nState.useNet = netCb.checked; nSave(); render(); };
+    netSw.appendChild(netCb); netSw.appendChild(el("span","slider"));
+    netLine.appendChild(netSw);
+    optCard.appendChild(netLine);
+    wrap.appendChild(optCard);
+
+    const courseCard = buildCourseCard({
+      courseKey: nState.courseKey,
+      onCourseChange: (newKey)=>{
+        nState.courseKey = newKey;
+        nState.tee = firstTeeKeyFor(newKey);
+        nSave(); render();
+      },
+      teeKey: nState.tee,
+      onTeeChange: (newTee)=>{ nState.tee = newTee; nSave(); render(); }
+    });
+    courseCard.appendChild(el("div","note","Total: "+yardTotal(nState.tee, allHoles)+" yds, Par "+parTotal(allHoles)+"."));
+    wrap.appendChild(courseCard);
+
+    if(nState.useNet){
+      const strokeCard = el("div","card");
+      strokeCard.appendChild(el("h2","section-title","Strokes"));
+      strokeCard.appendChild(el("div","note","Based on "+COURSES[nState.courseKey].name+"'s hole ratings. Lowest index plays 0 strokes; others get strokes on the hardest holes first."));
+      const table = el("table","ref-table");
+      const thead = el("tr");
+      ["Player","Index","Strokes","Strokes On Holes"].forEach(t=>thead.appendChild(el("th",null,t)));
+      table.appendChild(thead);
+      nState.players.forEach(p=>{
+        const tr = el("tr");
+        tr.appendChild(el("td",null,p.name));
+        tr.appendChild(el("td",null,String(p.index)));
+        const strokes = gStrokesFor(nState.players, p.id);
+        tr.appendChild(el("td",null,String(strokes)));
+        const holes = gStrokeHoleNumbers(nState.players, p.id);
+        tr.appendChild(el("td",null, holes.length?holes.join(", "):"\u2014"));
+        table.appendChild(tr);
+      });
+      strokeCard.appendChild(table);
+      wrap.appendChild(strokeCard);
+    }
+
+    const demoCard = el("div","card");
+    demoCard.appendChild(el("h2","section-title","Demo"));
+    demoCard.appendChild(el("div","note","Instantly fill in a full 18-hole round with random scores (birdie to double bogey) for all 4 players, so you can see how Nassau and its money tracking work."));
+    const simBtn = el("button","btn secondary","\u{1F3B2} Simulate Full Round");
+    simBtn.disabled = !teamsValid;
+    simBtn.onclick = simulateNassauRound;
+    demoCard.appendChild(simBtn);
+    wrap.appendChild(demoCard);
+
+    const btnRow = el("div","btn-row");
+    const startBtn = el("button","btn","Start Round \u2192");
+    startBtn.disabled = !teamsValid;
+    startBtn.onclick = ()=>{ if(!nTeamsValid()) return; nState.setupDone=true; nSave(); view="n-play"; render(); };
+    btnRow.appendChild(startBtn);
+    if(Object.keys(nState.scores).length>0){
+      const resetBtn = el("button","btn danger","Reset entire round");
+      resetBtn.onclick = ()=>{
+        if(confirm("This clears all holes and scores for this round. Continue?")){
+          const players=nState.players, teamOf=nState.teamOf, tee=nState.tee, courseKey=nState.courseKey, useNet=nState.useNet, betAmount=nState.betAmount;
+          nState = defaultNState();
+          nState.players=players; nState.teamOf=teamOf; nState.tee=tee; nState.courseKey=courseKey; nState.useNet=useNet; nState.betAmount=betAmount;
+          nSave(); render();
+        }
+      };
+      btnRow.appendChild(resetBtn);
+    }
+    wrap.appendChild(btnRow);
+    return wrap;
+  }
+
+  // ---- NASSAU: play ----
+  function renderNPlay(){
+    const wrap = el("div");
+    const num = nState.currentHole;
+    if(!nState.scores[num]) nState.scores[num] = {};
+    nState.players.forEach(p=>{
+      if(nState.scores[num][p.id]===undefined || nState.scores[num][p.id]===null){ nState.scores[num][p.id] = PAR[num]; }
+    });
+
+    const head = el("div","card");
+    const hh = el("div","hole-head");
+    const left = el("div");
+    left.appendChild(el("div","hole-num","Hole "+num));
+    left.appendChild(el("div","hole-meta","Par "+PAR[num]+" \u00b7 "+TEES[nState.tee].yards[num]+" yds \u00b7 "+TEES[nState.tee].label));
+    hh.appendChild(left);
+    head.appendChild(hh);
+    wrap.appendChild(head);
+
+    const scoreCard = el("div","card");
+    scoreCard.appendChild(el("h2","section-title","Scores"));
+    scoreCard.appendChild(el("div","note","Par "+PAR[num]+" is filled in by default \u2014 tap a shape or type a score to override."+(nState.useNet?" Net scores decide the bet.":" Gross scores decide the bet.")));
+    ["A","B"].forEach(team=>{
+      nTeamPlayers(team).forEach(pid=>{
+        const p = nState.players.find(x=>x.id===pid);
+        const block = el("div","score-entry-block");
+        const top = el("div","score-entry-top");
+        const getsStroke = nState.useNet && gStrokeHoleNumbers(nState.players, pid).includes(num);
+        top.innerHTML = '<span class="score-entry-name">'+p.name+'</span> <span class="team-tag '+(team==="A"?"hawk":"other")+'">Team '+team+'</span>';
+        const gross = nState.scores[num][pid];
+        const net = (gross===null||gross===undefined) ? null : gross-(getsStroke?1:0);
+        const meta = el("div","score-entry-meta", (getsStroke?"Stroke here \u00b7 ":"")+(nState.useNet ? (net===null?"No score yet":"Net "+net) : ""));
+        top.appendChild(meta);
+        block.appendChild(top);
+        block.appendChild(buildScoreButtonRow(PAR[num], gross, (value)=>{
+          nState.scores[num][pid] = value;
+          nSave(); render();
+        }, "n-score-"+num+"-"+pid));
+        scoreCard.appendChild(block);
+      });
+    });
+    wrap.appendChild(scoreCard);
+
+    const statusCard = el("div","card");
+    statusCard.appendChild(el("h2","section-title","Segment Status"));
+    NASSAU_SEGMENTS.forEach(seg=>{
+      const holesIn = seg.holes.filter(h=>nState.scores[h] && nState.players.every(p=>nState.scores[h][p.id]!==undefined && nState.scores[h][p.id]!==null)).length;
+      const row = el("div","score-entry-block");
+      const top = el("div","score-entry-top");
+      top.appendChild(el("div","score-entry-name",seg.label));
+      top.appendChild(el("div","score-entry-meta", holesIn+"/"+seg.holes.length+" holes in"));
+      row.appendChild(top);
+      const winner = nSegmentWinner(seg.holes);
+      const totalA = nTeamTotal("A", seg.holes), totalB = nTeamTotal("B", seg.holes);
+      let msg;
+      if(winner===null) msg = "In progress \u2014 Team A "+totalA+", Team B "+totalB+" so far.";
+      else if(winner==="tie") msg = "Tied at "+totalA+" \u2014 no money on this segment.";
+      else msg = "Team "+winner+" wins, "+Math.min(totalA,totalB)+" to "+Math.max(totalA,totalB)+" \u2014 $"+nState.betAmount+" per player.";
+      row.appendChild(el("div","note",msg));
+      statusCard.appendChild(row);
+    });
+    wrap.appendChild(statusCard);
+
+    const navRow = el("div","btn-row");
+    if(num>1){
+      const prevBtn = el("button","btn secondary","\u2190 Hole "+(num-1));
+      prevBtn.onclick = ()=>{ nState.currentHole=num-1; nSave(); render(); };
+      navRow.appendChild(prevBtn);
+    }
+    if(num<18){
+      const nextBtn = el("button","btn secondary","Hole "+(num+1)+" \u2192");
+      nextBtn.onclick = ()=>{ nState.currentHole=num+1; nSave(); render(); };
+      navRow.appendChild(nextBtn);
+    } else {
+      const finishBtn = el("button","btn","See Summary");
+      finishBtn.onclick = ()=>{ view="n-summary"; render(); };
+      navRow.appendChild(finishBtn);
+    }
+    wrap.appendChild(navRow);
+    return wrap;
+  }
+
+  // ---- NASSAU: standings ----
+  function renderNStandings(){
+    const wrap = el("div");
+    const card = el("div","card");
+    card.appendChild(el("h2","section-title","Money Standings"));
+    const results = computeNassauResults();
+    const ranked = nState.players.slice().sort((a,b)=>results.totals[b.id]-results.totals[a.id]);
+    ranked.forEach((p,i)=>{
+      const row = el("div","standing-row");
+      row.appendChild(el("div","standing-rank",String(i+1)));
+      row.appendChild(el("div","standing-name",p.name+" (Team "+nState.teamOf[p.id]+")"));
+      const {cls,text} = fmtMoney(results.totals[p.id]);
+      row.appendChild(el("div","money "+cls,text));
+      card.appendChild(row);
+    });
+    wrap.appendChild(card);
+
+    const segCard = el("div","card");
+    segCard.appendChild(el("h2","section-title","Segments"));
+    NASSAU_SEGMENTS.forEach(seg=>{
+      const r = results.segmentResults[seg.key];
+      const row = el("div","summary-row");
+      let label;
+      if(r.winner===null) label = seg.label+": in progress (A "+r.totalA+", B "+r.totalB+")";
+      else if(r.winner==="tie") label = seg.label+": tied "+r.totalA+"\u2013"+r.totalB+", no money";
+      else label = seg.label+": Team "+r.winner+" wins "+Math.min(r.totalA,r.totalB)+"\u2013"+Math.max(r.totalA,r.totalB);
+      row.appendChild(el("div",null,label));
+      segCard.appendChild(row);
+    });
+    wrap.appendChild(segCard);
+    return wrap;
+  }
+
+  // ---- NASSAU: summary ----
+  function buildNSummaryText(){
+    const results = computeNassauResults();
+    const lines = [];
+    lines.push("NASSAU \u2014 "+COURSES[nState.courseKey].name+" ("+TEES[nState.tee].label+")");
+    lines.push("$"+nState.betAmount+" per player per segment"+(nState.useNet?", net scores":", gross scores"));
+    lines.push("Team A: "+nTeamPlayers("A").map(pid=>playerNameIn(nState.players,pid)).join(" & "));
+    lines.push("Team B: "+nTeamPlayers("B").map(pid=>playerNameIn(nState.players,pid)).join(" & "));
+    lines.push("");
+    lines.push("Segments:");
+    NASSAU_SEGMENTS.forEach(seg=>{
+      const r = results.segmentResults[seg.key];
+      if(r.winner===null) lines.push(seg.label+": in progress (A "+r.totalA+", B "+r.totalB+")");
+      else if(r.winner==="tie") lines.push(seg.label+": tied "+r.totalA+"-"+r.totalB+", no money");
+      else lines.push(seg.label+": Team "+r.winner+" wins "+r.totalA+"-"+r.totalB);
+    });
+    lines.push("");
+    lines.push("Final Money Standings:");
+    const ranked = nState.players.slice().sort((a,b)=>results.totals[b.id]-results.totals[a.id]);
+    ranked.forEach((p,i)=>{
+      lines.push((i+1)+". "+p.name+" (Team "+nState.teamOf[p.id]+"): "+(results.totals[p.id]>0?"+":"")+"$"+results.totals[p.id]);
+    });
+    return lines.join("\n");
+  }
+
+  function renderNSummary(){
+    const wrap = el("div");
+    wrap.appendChild(renderNStandings());
+
+    const shareCard = el("div","card");
+    shareCard.appendChild(el("h2","section-title","Share Summary"));
+    shareCard.appendChild(el("div","note","Copy this recap to text or email to your group."));
+    const textarea = document.createElement("textarea");
+    textarea.readOnly = true;
+    textarea.style.width = "100%";
+    textarea.style.minHeight = "160px";
+    textarea.style.background = "var(--pine-dark)";
+    textarea.style.color = "var(--cream)";
+    textarea.style.border = "1px solid var(--line)";
+    textarea.style.borderRadius = "8px";
+    textarea.style.padding = "10px 11px";
+    textarea.style.fontFamily = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+    textarea.style.fontSize = "0.82rem";
+    textarea.style.marginTop = "8px";
+    textarea.value = buildNSummaryText();
+    shareCard.appendChild(textarea);
+    const copyBtn = el("button","btn","Copy to Clipboard");
+    copyBtn.style.marginTop = "10px";
+    copyBtn.onclick = async ()=>{
+      textarea.select();
+      try{ await navigator.clipboard.writeText(textarea.value); copyBtn.textContent="Copied!"; }
+      catch(e){
+        try{ document.execCommand("copy"); copyBtn.textContent="Copied!"; }
+        catch(err){ copyBtn.textContent="Select the text above to copy"; }
+      }
+      setTimeout(()=>{ copyBtn.textContent="Copy to Clipboard"; }, 1500);
+    };
+    shareCard.appendChild(copyBtn);
+    wrap.appendChild(shareCard);
+
+    return wrap;
+  }
+
+
+  // ---- MATCH PLAY: setup ----
+  function renderMSetup(){
+    const wrap = el("div");
+
+    const formatCard = el("div","card");
+    formatCard.appendChild(el("h2","section-title","Format"));
+    formatCard.appendChild(el("div","note","1 vs 1 is standard singles match play. 2 vs 2 Best Ball plays each hole using the better of the two net scores on each team."));
+    const formatRow = el("div","btn-row");
+    [["1v1","1 vs 1"],["2v2","2 vs 2 Best Ball"]].forEach(([val,label])=>{
+      const b = el("button","btn "+(mState.format===val?"":"secondary"), label);
+      b.onclick = ()=>{ mState.format = val; mSave(); render(); };
+      formatRow.appendChild(b);
+    });
+    formatCard.appendChild(formatRow);
+    wrap.appendChild(formatCard);
+
+    const active = mActivePlayers();
+
+    const datalist = document.createElement("datalist");
+    datalist.id = "roster-datalist-m";
+    const seenNames = new Set();
+    savedPlayers.forEach(sp=>{
+      if(seenNames.has(sp.name.toLowerCase())) return;
+      seenNames.add(sp.name.toLowerCase());
+      const opt = document.createElement("option");
+      opt.value = sp.name;
+      datalist.appendChild(opt);
+    });
+
+    const playersCard = el("div","card");
+    playersCard.appendChild(el("h2","section-title","Players"));
+    playersCard.appendChild(el("div","note", mState.format==="2v2"
+      ? "4 players, split into two teams of 2. Enter names and handicap indexes below \u2014 start typing a name to pull up anyone saved from a previous game."
+      : "2 players, head to head. Enter names and handicap indexes below \u2014 start typing a name to pull up anyone saved from a previous game."));
+    playersCard.appendChild(datalist);
+    active.forEach((p,i)=>{
+      const row = el("div","row"); row.style.marginBottom="12px";
+      const nameWrap = el("div");
+      nameWrap.appendChild(el("label",null,"Player "+(i+1)+" Name"));
+      const nameInput = el("input"); nameInput.id="m-name-"+p.id; nameInput.type="text"; nameInput.value=p.name;
+      nameInput.setAttribute("list","roster-datalist-m");
+      nameInput.autocomplete = "off";
+      nameInput.oninput = ()=>{
+        p.name = nameInput.value;
+        const match = savedPlayers.find(sp=>sp.name.toLowerCase()===nameInput.value.toLowerCase());
+        if(match){ p.index = match.index; }
+        mSave(); render();
+      };
+      nameInput.onfocus = selectOnFocus(nameInput);
+      nameInput.onblur = ()=>{ if(!p.name){ p.name="Player "+(i+1); mSave(); render(); } };
+      nameWrap.appendChild(nameInput);
+      row.appendChild(nameWrap);
+
+      const idxWrap = el("div");
+      idxWrap.appendChild(el("label",null,"Handicap Index"));
+      const idxInput = el("input"); idxInput.id="m-index-"+p.id; idxInput.type="number"; idxInput.step="0.1"; idxInput.value=p.index;
+      idxInput.oninput = ()=>{ p.index = idxInput.value===""?0:Number(idxInput.value); mSave(); render(); };
+      idxInput.onfocus = selectOnFocus(idxInput);
+      idxWrap.appendChild(idxInput);
+      row.appendChild(idxWrap);
+      playersCard.appendChild(row);
+    });
+    wrap.appendChild(playersCard);
+
+    let teamsValid = true;
+    if(mState.format==="2v2"){
+      const teamCard = el("div","card");
+      teamCard.appendChild(el("h2","section-title","Teams"));
+      teamCard.appendChild(el("div","note","Tap a player to switch their team. Each team needs exactly 2 players."));
+      const chipRow = el("div","row");
+      active.forEach(p=>{
+        const team = mState.teamOf[p.id];
+        const chip = el("div","player-chip"+(team==="A"?" selected":""));
+        chip.appendChild(el("div","dot"));
+        chip.appendChild(el("div",null,p.name+" \u2014 Team "+team));
+        chip.onclick = ()=>{ mState.teamOf[p.id] = team==="A"?"B":"A"; mSave(); render(); };
+        chipRow.appendChild(chip);
+      });
+      teamCard.appendChild(chipRow);
+      teamsValid = mTeamsValid();
+      if(teamsValid){
+        teamCard.appendChild(el("div","note","Team A: "+mTeamLabel("A")+" \u00b7 Team B: "+mTeamLabel("B")));
+      } else {
+        teamCard.appendChild(el("div","note","\u26A0 Teams need to be 2 vs 2 before you can start."));
+      }
+      wrap.appendChild(teamCard);
+    } else {
+      const vsCard = el("div","card");
+      vsCard.appendChild(el("h2","section-title","Match"));
+      vsCard.appendChild(el("div","note", (active[0]?active[0].name:"Player 1")+" vs "+(active[1]?active[1].name:"Player 2")));
+      wrap.appendChild(vsCard);
+    }
+
+    const optCard = el("div","card");
+    optCard.appendChild(el("h2","section-title","Bet"));
+    const valWrap = el("div");
+    valWrap.appendChild(el("label",null,"$ Per Player (winner of the match)"));
+    const valInput = el("input"); valInput.id="m-bet"; valInput.type="number"; valInput.min=0; valInput.step="1"; valInput.value=mState.betAmount;
+    valInput.onfocus = selectOnFocus(valInput);
+    valInput.oninput = ()=>{ mState.betAmount = valInput.value===""?0:Math.round(Number(valInput.value)); mSave(); render(); };
+    valWrap.appendChild(valInput);
+    optCard.appendChild(valWrap);
+    optCard.appendChild(el("div","note","$"+mState.betAmount+" \u2014 paid by every losing player to every winning player once the match is decided. A halved match pays nothing."));
+
+    const netLine = el("div","toggle-line");
+    netLine.appendChild(el("div","desc","Use net scores (handicap strokes count). On by default \u2014 this is what makes it a handicap match."));
+    const netSw = el("label","switch");
+    const netCb = el("input"); netCb.type="checkbox"; netCb.checked=!!mState.useNet;
+    netCb.onchange = ()=>{ mState.useNet = netCb.checked; mSave(); render(); };
+    netSw.appendChild(netCb); netSw.appendChild(el("span","slider"));
+    netLine.appendChild(netSw);
+    optCard.appendChild(netLine);
+    wrap.appendChild(optCard);
+
+    const courseCard = buildCourseCard({
+      courseKey: mState.courseKey,
+      onCourseChange: (newKey)=>{ mState.courseKey=newKey; mState.tee=firstTeeKeyFor(newKey); mSave(); render(); },
+      teeKey: mState.tee,
+      onTeeChange: (newTee)=>{ mState.tee=newTee; mSave(); render(); }
+    });
+    wrap.appendChild(courseCard);
+
+    if(mState.useNet){
+      const strokeCard = el("div","card");
+      strokeCard.appendChild(el("h2","section-title","Strokes"));
+      strokeCard.appendChild(el("div","note", mState.format==="2v2"
+        ? "Four-ball allowance: 90% of the handicap difference from the lowest index in the group, applied to "+COURSES[mState.courseKey].name+"'s hardest holes first."
+        : "Full handicap difference from the lower index, applied to "+COURSES[mState.courseKey].name+"'s hardest holes first."));
+      const table = el("table","ref-table");
+      const thead = el("tr");
+      ["Player","Index","Strokes","Strokes On Holes"].forEach(t=>thead.appendChild(el("th",null,t)));
+      table.appendChild(thead);
+      active.forEach(p=>{
+        const tr = el("tr");
+        tr.appendChild(el("td",null,p.name));
+        tr.appendChild(el("td",null,String(p.index)));
+        const strokes = mStrokesFor(p.id);
+        tr.appendChild(el("td",null,String(strokes)));
+        const holes = mStrokeHoleNumbers(p.id);
+        tr.appendChild(el("td",null, holes.length?holes.join(", "):"\u2014"));
+        table.appendChild(tr);
+      });
+      strokeCard.appendChild(table);
+      wrap.appendChild(strokeCard);
+    }
+
+    const demoCard = el("div","card");
+    demoCard.appendChild(el("h2","section-title","Demo"));
+    demoCard.appendChild(el("div","note","Instantly fill in a full 18-hole round with random scores (birdie to double bogey), so you can see how Match Play works."));
+    const simBtn = el("button","btn secondary","\u{1F3B2} Simulate Full Round");
+    simBtn.disabled = !teamsValid;
+    simBtn.onclick = simulateMatchRound;
+    demoCard.appendChild(simBtn);
+    wrap.appendChild(demoCard);
+
+    const btnRow = el("div","btn-row");
+    const startBtn = el("button","btn","Start Round \u2192");
+    startBtn.disabled = !teamsValid;
+    startBtn.onclick = ()=>{ if(!mTeamsValid()) return; mState.setupDone=true; mSave(); view="m-play"; render(); };
+    btnRow.appendChild(startBtn);
+    if(Object.keys(mState.scores).length>0){
+      const resetBtn = el("button","btn danger","Reset entire round");
+      resetBtn.onclick = ()=>{
+        if(confirm("This clears all holes and scores for this round. Continue?")){
+          const players=mState.players, teamOf=mState.teamOf, format=mState.format, tee=mState.tee, courseKey=mState.courseKey, useNet=mState.useNet, betAmount=mState.betAmount;
+          mState = defaultMState();
+          mState.players=players; mState.teamOf=teamOf; mState.format=format; mState.tee=tee; mState.courseKey=courseKey; mState.useNet=useNet; mState.betAmount=betAmount;
+          mSave(); render();
+        }
+      };
+      btnRow.appendChild(resetBtn);
+    }
+    wrap.appendChild(btnRow);
+    return wrap;
+  }
+
+  // ---- MATCH PLAY: play ----
+  function renderMPlay(){
+    const wrap = el("div");
+    const num = mState.currentHole;
+    const active = mActivePlayers();
+    if(!mState.scores[num]) mState.scores[num] = {};
+    active.forEach(p=>{
+      if(mState.scores[num][p.id]===undefined || mState.scores[num][p.id]===null){ mState.scores[num][p.id] = PAR[num]; }
+    });
+
+    const head = el("div","card");
+    const hh = el("div","hole-head");
+    const left = el("div");
+    left.appendChild(el("div","hole-num","Hole "+num));
+    left.appendChild(el("div","hole-meta","Par "+PAR[num]+" \u00b7 "+TEES[mState.tee].yards[num]+" yds \u00b7 "+TEES[mState.tee].label));
+    hh.appendChild(left);
+    head.appendChild(hh);
+    wrap.appendChild(head);
+
+    const scoreCard = el("div","card");
+    scoreCard.appendChild(el("h2","section-title","Scores"));
+    scoreCard.appendChild(el("div","note","Par "+PAR[num]+" is filled in by default \u2014 tap a shape or type a score to override."+(mState.useNet?" Net scores decide the hole.":" Gross scores decide the hole.")));
+    ["A","B"].forEach(team=>{
+      mTeamPlayers(team).forEach(pid=>{
+        const p = active.find(x=>x.id===pid);
+        const block = el("div","score-entry-block");
+        const top = el("div","score-entry-top");
+        const getsStroke = mState.useNet && mStrokeHoleNumbers(pid).includes(num);
+        const teamTagClass = mState.format==="2v2" ? (team==="A"?"hawk":"other") : "solo";
+        const teamTagText = mState.format==="2v2" ? ("Team "+team) : (team==="A"?"Player 1":"Player 2");
+        top.innerHTML = '<span class="score-entry-name">'+p.name+'</span> <span class="team-tag '+teamTagClass+'">'+teamTagText+'</span>';
+        const gross = mState.scores[num][pid];
+        const net = (gross===null||gross===undefined) ? null : gross-(getsStroke?1:0);
+        const meta = el("div","score-entry-meta", (getsStroke?"Stroke here \u00b7 ":"")+(mState.useNet ? (net===null?"No score yet":"Net "+net) : ""));
+        top.appendChild(meta);
+        block.appendChild(top);
+        block.appendChild(buildScoreButtonRow(PAR[num], gross, (value)=>{
+          mState.scores[num][pid] = value;
+          mSave(); render();
+        }, "m-score-"+num+"-"+pid));
+        scoreCard.appendChild(block);
+      });
+    });
+    wrap.appendChild(scoreCard);
+
+    const resultCard = el("div","card");
+    resultCard.appendChild(el("h2","section-title","This Hole"));
+    const winner = mHoleWinner(num);
+    const bestA = mTeamBest(num,"A"), bestB = mTeamBest(num,"B");
+    const teamName = (t)=> mState.format==="2v2" ? ("Team "+t) : playerNameIn(active, mTeamPlayers(t)[0]);
+    let holeMsg;
+    if(winner===null) holeMsg = "Enter scores to see who wins the hole.";
+    else if(winner==="halve") holeMsg = "Halved \u2014 both sides net "+bestA+".";
+    else holeMsg = teamName(winner)+" wins the hole, "+Math.min(bestA,bestB)+" to "+Math.max(bestA,bestB)+".";
+    resultCard.appendChild(el("div","note",holeMsg));
+    wrap.appendChild(resultCard);
+
+    const statusCard = el("div","card");
+    statusCard.appendChild(el("h2","section-title","Match Status"));
+    const info = matchStatusText();
+    statusCard.appendChild(el("div","note",info.text));
+    wrap.appendChild(statusCard);
+
+    const navRow = el("div","btn-row");
+    if(num>1){
+      const prevBtn = el("button","btn secondary","\u2190 Hole "+(num-1));
+      prevBtn.onclick = ()=>{ mState.currentHole=num-1; mSave(); render(); };
+      navRow.appendChild(prevBtn);
+    }
+    if(num<18){
+      const nextBtn = el("button","btn secondary","Hole "+(num+1)+" \u2192");
+      nextBtn.onclick = ()=>{ mState.currentHole=num+1; mSave(); render(); };
+      navRow.appendChild(nextBtn);
+    } else {
+      const finishBtn = el("button","btn","See Summary");
+      finishBtn.onclick = ()=>{ view="m-summary"; render(); };
+      navRow.appendChild(finishBtn);
+    }
+    wrap.appendChild(navRow);
+    return wrap;
+  }
+
+  // ---- MATCH PLAY: standings ----
+  function renderMStandings(){
+    const wrap = el("div");
+    const statusCard = el("div","card");
+    statusCard.appendChild(el("h2","section-title","Match Status"));
+    const info = matchStatusText();
+    statusCard.appendChild(el("div","note",info.text));
+    wrap.appendChild(statusCard);
+
+    const results = computeMatchResults();
+    const active = mActivePlayers();
+    const moneyCard = el("div","card");
+    moneyCard.appendChild(el("h2","section-title","Money"));
+    const ranked = active.slice().sort((a,b)=>results.totals[b.id]-results.totals[a.id]);
+    ranked.forEach((p,i)=>{
+      const row = el("div","standing-row");
+      row.appendChild(el("div","standing-rank",String(i+1)));
+      const label = mState.format==="2v2" ? (p.name+" (Team "+mTeamOf(p.id)+")") : p.name;
+      row.appendChild(el("div","standing-name",label));
+      const {cls,text} = fmtMoney(results.totals[p.id]);
+      row.appendChild(el("div","money "+cls,text));
+      moneyCard.appendChild(row);
+    });
+    wrap.appendChild(moneyCard);
+    return wrap;
+  }
+
+  // ---- MATCH PLAY: summary ----
+  function buildMSummaryText(){
+    const results = computeMatchResults();
+    const active = mActivePlayers();
+    const lines = [];
+    lines.push("MATCH PLAY ("+(mState.format==="2v2"?"2 vs 2 Best Ball":"1 vs 1")+") \u2014 "+COURSES[mState.courseKey].name+" ("+TEES[mState.tee].label+")");
+    lines.push("$"+mState.betAmount+" per player"+(mState.useNet?", net scores":", gross scores"));
+    if(mState.format==="2v2"){
+      lines.push("Team A: "+mTeamPlayers("A").map(pid=>playerNameIn(mState.players,pid)).join(" & "));
+      lines.push("Team B: "+mTeamPlayers("B").map(pid=>playerNameIn(mState.players,pid)).join(" & "));
+    } else {
+      lines.push((active[0]?active[0].name:"Player 1")+" vs "+(active[1]?active[1].name:"Player 2"));
+    }
+    lines.push("");
+    lines.push("Status: "+results.info.text);
+    lines.push("");
+    lines.push("Money:");
+    active.slice().sort((a,b)=>results.totals[b.id]-results.totals[a.id]).forEach(p=>{
+      lines.push(p.name+": "+(results.totals[p.id]>0?"+":"")+"$"+results.totals[p.id]);
+    });
+    return lines.join("\n");
+  }
+
+  function renderMSummary(){
+    const wrap = el("div");
+    wrap.appendChild(renderMStandings());
+
+    const shareCard = el("div","card");
+    shareCard.appendChild(el("h2","section-title","Share Summary"));
+    shareCard.appendChild(el("div","note","Copy this recap to text or email to your group."));
+    const textarea = document.createElement("textarea");
+    textarea.readOnly = true;
+    textarea.style.width = "100%";
+    textarea.style.minHeight = "160px";
+    textarea.style.background = "var(--pine-dark)";
+    textarea.style.color = "var(--cream)";
+    textarea.style.border = "1px solid var(--line)";
+    textarea.style.borderRadius = "8px";
+    textarea.style.padding = "10px 11px";
+    textarea.style.fontFamily = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+    textarea.style.fontSize = "0.82rem";
+    textarea.style.marginTop = "8px";
+    textarea.value = buildMSummaryText();
+    shareCard.appendChild(textarea);
+    const copyBtn = el("button","btn","Copy to Clipboard");
+    copyBtn.style.marginTop = "10px";
+    copyBtn.onclick = async ()=>{
+      textarea.select();
+      try{ await navigator.clipboard.writeText(textarea.value); copyBtn.textContent="Copied!"; }
+      catch(e){
+        try{ document.execCommand("copy"); copyBtn.textContent="Copied!"; }
+        catch(err){ copyBtn.textContent="Select the text above to copy"; }
+      }
+      setTimeout(()=>{ copyBtn.textContent="Copy to Clipboard"; }, 1500);
+    };
+    shareCard.appendChild(copyBtn);
+    wrap.appendChild(shareCard);
+    return wrap;
+  }
+
+
+  async function init(){
+    homeCourse = await loadHomeCourse();
+
+    const found = await load();
+    if(!found) state = defaultState();
+    if(!state.courseKey) state.courseKey = homeCourse;
+    savedPlayers = await loadRoster();
+
+    const savedMode = await loadAppMode();
+    if(savedMode==="golf"){
+      appMode = savedMode;
+      gState = await gLoad();
+      if(!gState) gState = defaultGState();
+      if(!gState.courseKey) gState.courseKey = homeCourse;
+      view = gState.setupDone ? "g-play" : "g-setup";
+    } else if(savedMode==="points"){
+      appMode = "points";
+      pState = await pLoad();
+      if(!pState) pState = defaultPState();
+      if(!pState.courseKey) pState.courseKey = homeCourse;
+      view = pState.setupDone ? "p-play" : "p-setup";
+    } else if(savedMode==="nassau"){
+      appMode = "nassau";
+      nState = await nLoad();
+      if(!nState) nState = defaultNState();
+      if(!nState.courseKey) nState.courseKey = homeCourse;
+      view = nState.setupDone ? "n-play" : "n-setup";
+    } else if(savedMode==="match"){
+      appMode = "match";
+      mState = await mLoad();
+      if(!mState) mState = defaultMState();
+      if(!mState.courseKey) mState.courseKey = homeCourse;
+      view = mState.setupDone ? "m-play" : "m-setup";
+    } else if(savedMode==="betting"){
+      appMode = "betting";
+      view = "betting-menu";
+    } else if(savedMode==="hawk"){
+      appMode = "hawk";
+      view = state.setupDone ? "play" : "setup";
+    } else {
+      appMode = null;
+      view = "home";
+    }
+    render();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
